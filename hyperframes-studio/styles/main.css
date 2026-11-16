@@ -1,0 +1,199 @@
+/* ═════════════════
+   main.css — Tema LIGHT profesional: blanco, azul y estilo académico
+   Usado por index.html y las escenas de HyperFrames.
+   ═══════════════════════════ */
+
+:root {
+    /* Paleta Light académica */
+    --blanco: #ffffff;
+    --blanco-suave: #f7fafd;
+    --azul-oscuro: #143a6b;
+    --azul: #1f5fa8;
+    --azul-medio: #2e77c9;
+    --azul-claro: #d7e7f7;
+    --azul-pastel: #eef5fc;
+    --texto: #1a2733;
+    --texto-suave: #5a6b7d;
+    --acento-exito: #1d8a5f;
+    --acento-alerta: #d64545;
+    --borde: #c9d6e5;
+
+    --sombra-tarjeta: 0 4px 18px rgba(20, 58, 107, 0.10);
+    --radio: 18px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: var(--blanco);
+    font-family: "Segoe UI", Arial, sans-serif;
+    color: var(--texto);
+}
+
+/* ── Raíz de la composición (1920×1080) ─────────────────────────── */
+#root {
+    width: 1920px;
+    height: 1080px;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(160deg, var(--blanco) 0%, var(--azul-pastel) 55%, var(--azul-claro) 100%);
+}
+
+/* Barra superior académica */
+.barra-superior {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 14px;
+    background: linear-gradient(90deg, var(--azul-oscuro), var(--azul), var(--azul-medio));
+}
+
+/* ── Tipografía ─────────────────────────────────────────────────── */
+h1 {
+    font-size: 88px;
+    font-weight: 800;
+    color: var(--azul-oscuro);
+    text-align: center;
+    letter-spacing: 1px;
+}
+
+h2 {
+    font-size: 54px;
+    color: var(--azul);
+    margin-bottom: 30px;
+    border-left: 10px solid var(--azul);
+    padding-left: 24px;
+}
+
+.subtitle {
+    color: var(--texto-suave);
+    font-size: 38px;
+    text-align: center;
+}
+
+/* ── Tarjetas / paneles ─────────────────────────────────────────── */
+.panel {
+    position: absolute;
+    padding: 55px;
+    background: var(--blanco);
+    border: 2px solid var(--borde);
+    border-radius: var(--radio);
+    box-shadow: var(--sombra-tarjeta);
+    text-align: center;
+}
+
+.panel-hero {
+    position: absolute;
+    top: 480px;
+    left: 250px;
+    width: 1420px;
+    padding: 50px;
+    background: var(--blanco);
+    border: 2px solid var(--borde);
+    border-radius: var(--radio);
+    box-shadow: var(--sombra-tarjeta);
+    text-align: center;
+}
+
+/* Cuadrícula de métricas */
+.grid-metricas {
+    position: absolute;
+    left: 250px;
+    width: 1420px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 28px;
+}
+
+.tarjeta {
+    background: var(--blanco);
+    border: 2px solid var(--borde);
+    border-radius: var(--radio);
+    box-shadow: var(--sombra-tarjeta);
+    padding: 32px 20px;
+    text-align: center;
+}
+
+.tarjeta .etiqueta {
+    font-size: 26px;
+    color: var(--texto-suave);
+    letter-spacing: 1px;
+    margin-bottom: 14px;
+}
+
+.tarjeta .valor {
+    font-size: 72px;
+    font-weight: 800;
+    color: var(--azul);
+}
+
+/* ── Datos numéricos ────────────────────────────────────────────── */
+.metric {
+    font-size: 85px;
+    font-weight: 800;
+    color: var(--azul);
+    margin: 25px;
+}
+
+.equation {
+    font-size: 56px;
+    font-weight: 700;
+    color: var(--azul-oscuro);
+    background: var(--azul-pastel);
+    border: 2px solid var(--azul-claro);
+    border-radius: 14px;
+    padding: 18px 40px;
+    display: inline-block;
+    margin: 20px 0;
+}
+
+.tabla {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 30px;
+}
+
+.tabla th {
+    background: var(--azul);
+    color: var(--blanco);
+    padding: 16px;
+}
+
+.tabla td {
+    border-bottom: 1px solid var(--borde);
+    padding: 14px;
+    color: var(--texto);
+}
+
+.tabla tr:nth-child(even) td {
+    background: var(--azul-pastel);
+}
+
+/* Chips de estado */
+.chip {
+    display: inline-block;
+    padding: 10px 28px;
+    border-radius: 999px;
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.chip-ok {
+    background: #e2f5ec;
+    color: var(--acento-exito);
+}
+
+.chip-alert {
+    background: #fdeaea;
+    color: var(--acento-alerta);
+}
+
+.chip-info {
+    background: var(--azul-claro);
+    color: var(--azul-oscuro);
+}

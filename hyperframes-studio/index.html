@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Regresión Lineal — Mínimos Cuadrados | HyperFrames</title>
+<link rel="stylesheet" href="./styles/main.css">
+</head>
+
+<body>
+
+<div id="root"
+     data-composition-id="root"
+     data-start="0"
+     data-width="1920"
+     data-height="1080">
+
+  <div class="barra-superior"></div>
+
+  <!-- ══ 1. INICIO ══ -->
+  <section id="sec-inicio">
+    <h1 id="title" class="clip"
+        data-start="0" data-duration="8" data-track-index="0"
+        style="position:absolute;top:120px;width:100%;line-height:1.15;">
+      REGRESIÓN LINEAL POR MÍNIMOS CUADRADOS
+    </h1>
+    <p id="subtitle" class="clip subtitle"
+       data-start="1" data-duration="7" data-track-index="1"
+       style="position:absolute;top:380px;width:100%;">
+       Análisis de datos con Cálculo Multivariable — proyecto académico
+    </p>
+
+    <div id="hero-estado" class="panel-hero clip"
+         data-start="2" data-duration="6" data-track-index="2"
+         style="top:500px;padding:40px;">
+      <p class="subtitle">MODELO DE REGRESIÓN LINEAL</p>
+      <div id="equation" class="equation">Calculando...</div>
+      <div class="chip chip-info" id="chip-estado">PROCESANDO DATOS…</div>
+      <div id="total" class="metric">0</div>
+      <p class="subtitle">REGISTROS PROCESADOS</p>
+    </div>
+  </section>
+
+  <!-- ══ 2. DATOS ══ -->
+  <section id="sec-datos">
+    <h2 class="clip" data-start="8" data-duration="10" data-track-index="0"
+        style="position:absolute;top:80px;left:250px;">
+      1 · Datos cargados
+    </h2>
+
+    <div class="clip grid-metricas"
+         data-start="8.5" data-duration="9.5" data-track-index="1"
+         style="top:240px;">
+      <div class="tarjeta"><div class="etiqueta">OBSERVACIONES</div>
+        <div class="valor" id="d-total">—</div></div>
+      <div class="tarjeta"><div class="etiqueta">x̄ (MEDIA)</div>
+        <div class="valor" id="d-media-x">—</div></div>
+      <div class="tarjeta"><div class="etiqueta">ȳ (MEDIA)</div>
+        <div class="valor" id="d-media-y">—</div></div>
+      <div class="tarjeta"><div class="etiqueta">R²</div>
+        <div class="valor" id="d-r2">—</div></div>
+    </div>
+
+    <div class="clip panel-hero" data-start="9" data-duration="9" data-track-index="2"
+         style="top:520px;padding:28px;">
+      <table class="tabla" id="tabla-datos" style="font-size:24px;">
+        <thead><tr><th>i</th><th>xᵢ</th><th>yᵢ</th><th>ŷᵢ</th><th>eᵢ</th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <div class="chip chip-ok" id="chip-datos" style="margin-top:12px;">VALIDACIÓN ✓</div>
+    </div>
+  </section>
+
+  <!-- ══ 3. MODELO MATEMÁTICO ══ -->
+  <section id="sec-modelo">
+    <h2 class="clip" data-start="18" data-duration="10" data-track-index="0"
+        style="position:absolute;top:80px;left:250px;">
+      2 · Modelo matemático
+    </h2>
+    <div class="clip panel-hero" data-start="18.5" data-duration="9.5" data-track-index="1"
+         style="top:240px;">
+      <p class="subtitle">MODELO PROPUESTO Y FUNCIÓN OBJETIVO</p>
+      <div class="equation">ŷ = a·x + b</div>
+      <div class="equation" style="font-size:44px;">
+        S(a,b) = Σ (yᵢ − a·xᵢ − b)²
+      </div>
+      <p class="subtitle" style="font-size:30px;margin-top:18px;">
+        Variables: <b>x</b> independiente · <b>y</b> dependiente · <b>e</b> residuo
+      </p>
+      <div id="modelo-ecuacion" class="equation">Calculando...</div>
+    </div>
+  </section>
+
+  <!-- ══ 4. OPTIMIZACIÓN ══ -->
+  <section id="sec-optimizacion">
+    <h2 class="clip" data-start="28" data-duration="12" data-track-index="0"
+        style="position:absolute;top:80px;left:250px;">
+      3 · Optimización
+    </h2>
+
+    <div class="clip grid-metricas" data-start="28.5" data-duration="11.5"
+         data-track-index="1" style="top:230px;">
+      <div class="tarjeta"><div class="etiqueta">∂S/∂a = 0</div>
+        <div class="valor" style="font-size:44px;" id="opt-deriv-a">—</div></div>
+      <div class="tarjeta"><div class="etiqueta">∂S/∂b = 0</div>
+        <div class="valor" style="font-size:44px;" id="opt-deriv-b">0</div></div>
+      <div class="tarjeta"><div class="etiqueta">det(H) HESSIANA</div>
+        <div class="valor" style="font-size:44px;" id="opt-det">—</div></div>
+      <div class="tarjeta"><div class="etiqueta">MÍNIMO GLOBAL</div>
+        <div class="valor" style="font-size:44px;" id="opt-min">—</div></div>
+    </div>
+
+    <div class="clip panel-hero" data-start="29" data-duration="11" data-track-index="2"
+         style="top:560px;padding:36px;">
+      <p class="subtitle" style="font-size:30px;">ECUACIONES NORMALES</p>
+      <div class="equation" style="font-size:36px;" id="opt-ec1">—</div>
+      <div class="equation" style="font-size:36px;" id="opt-ec2">—</div>
+      <p class="subtitle" style="font-size:28px;margin-top:14px;">
+        Descenso por gradiente: <span id="opt-grad-info">—</span>
+      </p>
+    </div>
+  </section>
+
+  <!-- ══ 5. VISUALIZACIONES 2D ══ -->
+  <section id="sec-vis2d">
+    <h2 class="clip" data-start="40" data-duration="12" data-track-index="0"
+        style="position:absolute;top:80px;left:250px;">
+      4 · Visualizaciones 2D
+    </h2>
+    <div class="clip panel-hero" data-start="40.5" data-duration="11.5"
+         data-track-index="1" style="top:240px;">
+      <p class="subtitle">GENERADAS EN results/images/ · INTERACTIVAS EN results/html/</p>
+      <div class="grid-metricas" style="position:static;margin-top:30px;width:100%;">
+        <div class="tarjeta"><div class="etiqueta">RESIDUOS</div><div class="valor" style="font-size:40px;">residuos.png</div></div>
+        <div class="tarjeta"><div class="etiqueta">CURVAS DE NIVEL</div><div class="valor" style="font-size:40px;">curvas_nivel.png</div></div>
+        <div class="tarjeta"><div class="etiqueta">CONVERGENCIA</div><div class="valor" style="font-size:40px;">convergencia.html</div></div>
+        <div class="tarjeta"><div class="etiqueta">MAPAS DE CALOR</div><div class="valor" style="font-size:40px;">mapas_calor.html</div></div>
+      </div>
+      <p class="subtitle" style="font-size:30px;margin-top:26px;" id="vis2d-resumen">—</p>
+    </div>
+  </section>
+
+  <!-- ══ 6. VISUALIZACIONES 3D ══ -->
+  <section id="sec-vis3d">
+    <h2 class="clip" data-start="52" data-duration="12" data-track-index="0"
+        style="position:absolute;top:80px;left:250px;">
+      5 · Visualizaciones 3D
+    </h2>
+    <div class="clip panel-hero" data-start="52.5" data-duration="11.5"
+         data-track-index="1" style="top:240px;">
+      <p class="subtitle">SUPERFICIE DEL ERROR · PLANO DE REGRESIÓN · TRAYECTORIA</p>
+      <div class="equation" style="font-size:40px;margin-top:26px;">
+        superficie_error.html — gira con el mouse
+      </div>
+      <div class="grid-metricas" style="position:static;margin-top:26px;width:100%;">
+        <div class="tarjeta"><div class="etiqueta">SUPERFICIE 3D</div>
+          <div class="valor" style="font-size:38px;">regresion_3d.png</div></div>
+        <div class="tarjeta"><div class="etiqueta">HESSIANA (mapa)</div>
+          <div class="valor" style="font-size:38px;">hessiana.png</div></div>
+        <div class="tarjeta"><div class="etiqueta">INTERACTIVO</div>
+          <div class="valor" style="font-size:38px;">Plotly ✓</div></div>
+        <div class="tarjeta"><div class="etiqueta">GIRO AUTOMÁTICO</div>
+          <div class="valor" style="font-size:38px;">360° ✓</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 7. COMPARACIÓN ══ -->
+  <section id="sec-comparacion">
+    <h2 class="clip" data-start="64" data-duration="12" data-track-index="0"
+        style="position:absolute;top:80px;left:250px;">
+      6 · Analítico vs Numérico
+    </h2>
+    <div class="clip grid-metricas" data-start="64.5" data-duration="11.5"
+         data-track-index="1" style="top:230px;">
+      <div class="tarjeta"><div class="etiqueta">a* ANALÍTICO</div>
+        <div class="valor" id="cmp-a-an">—</div></div>
+      <div class="tarjeta"><div class="etiqueta">a* GRADIENTE</div>
+        <div class="valor" id="cmp-a-gr">—</div></div>
+      <div class="tarjeta"><div class="etiqueta">b* ANALÍTICO</div>
+        <div class="valor" id="cmp-b-an">—</div></div>
+      <div class="tarjeta"><div class="etiqueta">b* GRADIENTE</div>
+        <div class="valor" id="cmp-b-gr">—</div></div>
+    </div>
+    <div class="clip panel-hero" data-start="65" data-duration="11" data-track-index="2"
+         style="top:560px;padding:36px;">
+      <div class="chip chip-ok" id="cmp-veredicto">COMPARANDO…</div>
+      <p class="subtitle" style="font-size:32px;margin-top:20px;" id="cmp-error-min">—</p>
+    </div>
+  </section>
+
+  <!-- ══ 8. EXPERIMENTOS ══ -->
+  <section id="sec-experimentos">
+    <h2 class="clip" data-start="76" data-duration="12" data-track-index="0"
+        style="position:absolute;top:80px;left:250px;">
+      7 · Experimentos
+    </h2>
+    <div class="clip grid-metricas" data-start="76.5" data-duration="11.5"
+         data-track-index="1" style="top:230px;">
+      <div class="tarjeta"><div class="etiqueta">TASA η</div>
+        <div class="valor" style="font-size:44px;" id="exp-eta">—</div></div>
+      <div class="tarjeta"><div class="etiqueta">ITERACIONES</div>
+        <div class="valor" id="exp-iters">—</div></div>
+      <div class="tarjeta"><div class="etiqueta">MSE</div>
+        <div class="valor" style="font-size:44px;" id="exp-mse">—</div></div>
+      <div class="tarjeta"><div class="etiqueta">RMSE</div>
+        <div class="valor" style="font-size:44px;" id="exp-rmse">—</div></div>
+    </div>
+    <div class="clip panel-hero" data-start="77" data-duration="11" data-track-index="2"
+         style="top:560px;padding:36px;">
+      <p class="subtitle" style="font-size:30px;" id="exp-relacion">—</p>
+    </div>
+  </section>
+
+  <!-- ══ 9. EXPORTACIONES ══ -->
+  <section id="sec-export">
+    <h2 class="clip" data-start="88" data-duration="10" data-track-index="0"
+        style="position:absolute;top:80px;left:250px;">
+      8 · Centro de exportaciones
+    </h2>
+    <div class="clip grid-metricas" data-start="88.5" data-duration="9.5"
+         data-track-index="1" style="top:230px;">
+      <div class="tarjeta"><div class="etiqueta">PDF</div>
+        <div class="valor" style="font-size:38px;">informe</div></div>
+      <div class="tarjeta"><div class="etiqueta">EXCEL</div>
+        <div class="valor" style="font-size:38px;">.xlsx</div></div>
+      <div class="tarjeta"><div class="etiqueta">HTML 3D</div>
+        <div class="valor" style="font-size:38px;">4 dashboards</div></div>
+      <div class="tarjeta"><div class="etiqueta">IMÁGENES + DATA</div>
+        <div class="valor" style="font-size:38px;">PNG · CSV · JSON</div></div>
+    </div>
+    <div class="clip panel-hero" data-start="89" data-duration="9" data-track-index="2"
+         style="top:560px;padding:36px;">
+      <p class="subtitle" style="font-size:32px;">
+        Todo generado automáticamente en <b>results/</b> por src/exportar_resultados.py
+      </p>
+      <div class="chip chip-ok" style="margin-top:20px;">GENERACIÓN ✓ COMPLETA</div>
+    </div>
+  </section>
+
+</div>
+
+<script src="./data/generated/datos.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js"></script>
+
+<script>
+const data = window.HYPEFRAMES_DATA;
+
+if (!data) {
+    throw new Error("No se encontraron datos procesados");
+}
+
+const f = (v, d = 4) => Number(v).toFixed(d);
+const S = id => document.getElementById(id);
+
+/* ── 1. Inicio ─────────────────────────────────────────────── */
+S("equation").textContent = data.ecuacion;
+S("total").textContent    = data.total;
+S("chip-estado").textContent = data.esMinimoGlobal
+    ? "EJECUCIÓN COMPLETA ✓ — MÍNIMO GLOBAL CONFIRMADO"
+    : "REVISAR RESULTADOS";
+S("chip-estado").className = "chip " + (data.esMinimoGlobal ? "chip-ok" : "chip-alert");
+
+/* ── 2. Datos ──────────────────────────────────────────────── */
+S("d-total").textContent = data.total;
+S("d-r2").textContent    = f(data.r2, 4);
+
+// Tabla de puntos con residuos
+const tbody = S("tabla-datos").querySelector("tbody");
+data.datos.forEach((p, i) => {
+    const yp = data.pendiente * p.x + data.intercepto;
+    const e  = p.y - yp;
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td>${i + 1}</td><td>${f(p.x, 2)}</td><td>${f(p.y, 3)}</td>` +
+                   `<td>${f(yp, 3)}</td><td>${f(e, 3)}</td>`;
+    tbody.appendChild(tr);
+});
+S("chip-datos").textContent = `VALIDACIÓN ✓ — ${data.total} registros, sin datos faltantes`;
+
+/* ── 3. Modelo ─────────────────────────────────────────────── */
+S("modelo-ecuacion").textContent = `Óptimo:  ${data.ecuacion}`;
+
+/* ── 4. Optimización ───────────────────────────────────────── */
+S("opt-det").textContent = f(data.detHessiana, 1);
+S("opt-min").textContent = data.esMinimoGlobal ? "SÍ ✓" : "NO";
+if (data.hessiana) {
+    S("opt-deriv-a").textContent = `2Σx² = ${f(data.hessiana[0][0], 1)}`;
+}
+S("opt-ec1").textContent =
+    `${f(data.hessiana ? data.hessiana[0][0] : 0, 1)}·a + ${f(data.hessiana ? data.hessiana[0][1] : 0, 1)}·b = Σxy`;
+S("opt-ec2").textContent =
+    `${f(data.hessiana ? data.hessiana[1][0] : 0, 1)}·a + ${data.total}·b = Σy`;
+S("opt-grad-info").textContent =
+    `${data.gradiente.iteraciones} iteraciones — convergió: ${data.gradiente.convergio ? "sí" : "no"}`;
+
+/* ── 5. Visualizaciones 2D ─────────────────────────────────── */
+S("vis2d-resumen").textContent =
+    `Relación detectada: ${data.relacion}`;
+
+/* ── 7. Comparación ────────────────────────────────────────── */
+S("cmp-a-an").textContent = f(data.pendiente, 4);
+S("cmp-a-gr").textContent = f(data.gradiente.a, 4);
+S("cmp-b-an").textContent = f(data.intercepto, 4);
+S("cmp-b-gr").textContent = f(data.gradiente.b, 4);
+const diff = Math.max(Math.abs(data.pendiente - data.gradiente.a),
+                      Math.abs(data.intercepto - data.gradiente.b));
+const cmp = S("cmp-veredicto");
+cmp.textContent = diff < 1e-3
+    ? "✓ MÉTODOS COINCIDEN — mínimo global verificado"
+    : `△ DIFERENCIA ${diff.toExponential(1)}`;
+cmp.className = "chip " + (diff < 1e-3 ? "chip-ok" : "chip-alert");
+S("cmp-error-min").textContent =
+    `Error cuadrático mínimo S(a*, b*) = ${f(data.errorCuadratico, 4)}`;
+
+/* ── 8. Experimentos ───────────────────────────────────────── */
+S("exp-mse").textContent  = f(data.mse, 4);
+S("exp-rmse").textContent = f(data.rmse, 4);
+S("exp-iters").textContent = data.gradiente.iteraciones;
+S("exp-relacion").textContent = data.relacion;
+
+/* ── Animación ─────────────────────────────────────────────── */
+const timeline = gsap.timeline({ paused: true });
+
+const mostrar = (sel, t) => timeline.from(sel, { opacity: 0, y: 40, duration: 0.8 }, t);
+
+mostrar("#title", 0);
+mostrar("#subtitle", 1);
+mostrar("#hero-estado", 2);
+
+mostrar("#sec-datos h2", 8);
+mostrar("#sec-datos .grid-metricas", 8.5);
+mostrar("#sec-datos .panel-hero", 9);
+
+mostrar("#sec-modelo h2", 18);
+mostrar("#sec-modelo .panel-hero", 18.5);
+
+mostrar("#sec-optimizacion h2", 28);
+mostrar("#sec-optimizacion .grid-metricas", 28.5);
+mostrar("#sec-optimizacion .panel-hero", 29);
+
+mostrar("#sec-vis2d h2", 40);
+mostrar("#sec-vis2d .panel-hero", 40.5);
+
+mostrar("#sec-vis3d h2", 52);
+mostrar("#sec-vis3d .panel-hero", 52.5);
+
+mostrar("#sec-comparacion h2", 64);
+mostrar("#sec-comparacion .grid-metricas", 64.5);
+mostrar("#sec-comparacion .panel-hero", 65);
+
+mostrar("#sec-experimentos h2", 76);
+mostrar("#sec-experimentos .grid-metricas", 76.5);
+mostrar("#sec-experimentos .panel-hero", 77);
+
+mostrar("#sec-export h2", 88);
+mostrar("#sec-export .grid-metricas", 88.5);
+mostrar("#sec-export .panel-hero", 89);
+
+window.__timelines = window.__timelines || {};
+window.__timelines["root"] = timeline;
+</script>
+
+</body>
+</html>

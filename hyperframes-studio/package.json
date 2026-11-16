@@ -1,0 +1,17 @@
+{
+  "name": "hyperframes-studio",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "npx --yes hyperframes@0.9.53 preview",
+    "check": "npx --yes hyperframes@0.9.53 check",
+    "render": "npx --yes hyperframes@0.9.53 render",
+    "publish": "npx --yes hyperframes@0.9.53 publish",
+    "datos": "node scripts/procesar-datos.mjs",
+    "generar": "python src/generar_datos.py",
+    "analizar": "python src/main.py --sin-gui",
+    "probar": "python tests/pruebas.py",
+    "build": "python src/generar_datos.py && python src/main.py --sin-gui && node scripts/procesar-datos.mjs && npm run probar",
+    "pipeline": "npm run build"
+  }
+}

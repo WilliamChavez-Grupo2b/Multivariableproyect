@@ -1,0 +1,35 @@
+<!DOCTYPE html><html lang="es"><head><meta charset="utf-8">
+<title>Informe completo — Mínimos cuadrados</title>
+<style>
+body{font-family:Georgia,serif;max-width:800px;margin:40px auto;color:#1a2733}
+h1{color:#1f5fa8} h2{color:#1f5fa8;border-bottom:2px solid #7fb2e5;padding-bottom:4px}
+table{border-collapse:collapse;width:100%;margin:14px 0}
+td,th{border:1px solid #c9d6e5;padding:8px;text-align:left}
+th{background:#1f5fa8;color:white}
+tr:nth-child(even) td{background:#eef5fc}
+.ecuacion{text-align:center;font-size:1.3em;background:#eef5fc;padding:12px;border-radius:8px}
+@media print{body{margin:15mm}}
+</style></head><body>
+<h1>Informe completo — Regresión lineal por mínimos cuadrados</h1>
+<h2>1. Datos y estadísticas</h2>
+<p>n = 10 observaciones · x̄ = 5.5000 · ȳ = 12.3381</p>
+<table><tr><th>i</th><th>xᵢ</th><th>yᵢ</th><th>ŷᵢ</th><th>eᵢ</th></tr><tr><td>1</td><td>1.000</td><td>3.501</td><td>3.354</td><td>0.147</td></tr><tr><td>2</td><td>2.000</td><td>5.739</td><td>5.351</td><td>0.388</td></tr><tr><td>3</td><td>3.000</td><td>7.281</td><td>7.347</td><td>-0.066</td></tr><tr><td>4</td><td>4.000</td><td>8.788</td><td>9.344</td><td>-0.556</td></tr><tr><td>5</td><td>5.000</td><td>11.136</td><td>11.340</td><td>-0.204</td></tr><tr><td>6</td><td>6.000</td><td>12.707</td><td>13.336</td><td>-0.630</td></tr><tr><td>7</td><td>7.000</td><td>15.548</td><td>15.333</td><td>0.215</td></tr><tr><td>8</td><td>8.000</td><td>18.572</td><td>17.329</td><td>1.243</td></tr><tr><td>9</td><td>9.000</td><td>19.106</td><td>19.325</td><td>-0.219</td></tr><tr><td>10</td><td>10.000</td><td>21.004</td><td>21.322</td><td>-0.318</td></tr></table>
+<h2>2. Parámetros óptimos</h2>
+<table>
+<tr><th>Parámetro</th><th>Valor</th></tr>
+<tr><td>Pendiente a*</td><td>1.996388</td></tr>
+<tr><td>Intercepto b*</td><td>1.357995</td></tr>
+<tr><td>S(a*, b*) mínimo</td><td>2.664703</td></tr>
+<tr><td>det(H)</td><td>3300.0000 (&gt; 0 → mínimo global)</td></tr>
+<tr><td>Gradiente: a*, b* (7484 iter.)</td><td>1.996388, 1.357995</td></tr>
+</table>
+<h2>3. Recta de regresión</h2>
+<p class="ecuacion">ŷ = 1.9964·x + (1.3580)</p>
+<h2>4. Conclusiones</h2>
+<ul>
+<li>La Hessiana es definida positiva: (a*, b*) es el <b>mínimo global</b> de S.</li>
+<li>El descenso por gradiente converge al mismo punto desde (0, 0).</li>
+<li>La relación entre las variables es <b>positiva</b>.</li>
+</ul>
+<p><i>Generado automáticamente por src/exportar_resultados.py · Imprimir con Ctrl+P para obtener informe_completo.pdf</i></p>
+</body></html>

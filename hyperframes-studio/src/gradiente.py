@@ -54,6 +54,9 @@ def descenso_gradiente(
     """
     a, b = float(a_init), float(b_init)
     historial = []
+    dS_da0, dS_db0 = calc_gradiente(x, y, a, b)
+    trayectoria = [(a, b, error_cuadratico(x, y, a, b),
+                    (dS_da0 ** 2 + dS_db0 ** 2) ** 0.5)]
 
     for it in range(1, max_iter + 1):
         dS_da, dS_db = calc_gradiente(x, y, a, b)
@@ -74,18 +77,21 @@ def descenso_gradiente(
                 "b_star": b,
                 "iteraciones": it,
                 "historial": historial,
+                "trayectoria": trayectoria,
                 "convergio": True,
             }
 
         # Actualización
         a -= eta * dS_da
         b -= eta * dS_db
+        trayectoria.append((a, b, error_cuadratico(x, y, a, b), norma))
 
     return {
         "a_star": a,
         "b_star": b,
         "iteraciones": max_iter,
         "historial": historial,
+        "trayectoria": trayectoria,
         "convergio": False,
     }
 

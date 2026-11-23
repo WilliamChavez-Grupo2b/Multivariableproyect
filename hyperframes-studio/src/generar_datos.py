@@ -1,15 +1,16 @@
 """
 generar_datos.py
 ----------------
-Genera automáticamente el conjunto de datos del problema y lo guarda en:
+GENERADOR DE DATOS SINTÉTICOS — solo para PRUEBAS del código.
 
-    <raíz>/hyperframes-studio/data/input/datos.csv
+El proyecto usa DATOS REALES (data/input/datos.csv, ver FUENTE.md).
+Este script NO toca esos datos: escribe en
 
-El problema del modelo lineal  y = a·x + b  tiene TRES variables:
+    <raíz>/data/input/datos_sinteticos.csv
 
-  1. x : variable independiente (entrada)
-  2. y : variable dependiente (respuesta observada)
-  3. e : error/residuo  e_i = y_i − (a·x_i + b)   → componente aleatoria
+Genera y_i = a_real·x_i + b_real + ruido gaussiano, para probar que el
+código recupera parámetros conocidos. Nota: en el problema de optimización
+las VARIABLES son a y b (S depende de a y b); x_i, y_i son datos fijos.
 
 Los datos se generan con ruido gaussiano DETERMINISTA (semilla fija),
 de modo que el proyecto sea reproducible: mismos datos en cada ejecución.
@@ -32,7 +33,7 @@ if sys.stdout.encoding and sys.stdout.encoding.lower() not in ("utf-8", "utf8"):
 # Rutas: este script vive en hyperframes-studio/src → la raíz es el padre
 RAIZ = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 CARPETA_SALIDA = os.path.join(RAIZ, "data", "input")
-ARCHIVO_CSV = os.path.join(CARPETA_SALIDA, "datos.csv")
+ARCHIVO_CSV = os.path.join(CARPETA_SALIDA, "datos_sinteticos.csv")
 
 # Parámetros del generador (pueden sobrescribirse por línea de comandos)
 # SEMILLA = None → NUEVOS datos en cada ejecución (aleatorio por reloj del sistema).
@@ -77,10 +78,8 @@ def imprimir_definicion_problema(n, a_real, b_real, ruta, semilla=None):
     print("""
   Modelo propuesto:   y = a·x + b
 
-  Tres variables del modelo:
-    1)  x  → variable independiente (entrada del modelo)
-    2)  y  → variable dependiente  (respuesta observada)
-    3)  e  → error o residuo:  e_i = y_i − (a·x_i + b)
+  Datos SINTÉTICOS (solo pruebas). Las variables de S(a, b) son a y b;
+  x_i, y_i son datos fijos y e_i = y_i − (a·x_i + b) es el residuo.
 
   Objetivo: encontrar a* y b* que minimicen
         S(a,b) = Σ (y_i − a·x_i − b)²

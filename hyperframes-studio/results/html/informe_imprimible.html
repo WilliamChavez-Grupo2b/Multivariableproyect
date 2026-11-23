@@ -12,24 +12,27 @@ tr:nth-child(even) td{background:#eef5fc}
 </style></head><body>
 <h1>Informe completo — Regresión lineal por mínimos cuadrados</h1>
 <h2>1. Datos y estadísticas</h2>
-<p>n = 10 observaciones · x̄ = 5.5000 · ȳ = 12.3381</p>
-<table><tr><th>i</th><th>xᵢ</th><th>yᵢ</th><th>ŷᵢ</th><th>eᵢ</th></tr><tr><td>1</td><td>1.000</td><td>3.501</td><td>3.354</td><td>0.147</td></tr><tr><td>2</td><td>2.000</td><td>5.739</td><td>5.351</td><td>0.388</td></tr><tr><td>3</td><td>3.000</td><td>7.281</td><td>7.347</td><td>-0.066</td></tr><tr><td>4</td><td>4.000</td><td>8.788</td><td>9.344</td><td>-0.556</td></tr><tr><td>5</td><td>5.000</td><td>11.136</td><td>11.340</td><td>-0.204</td></tr><tr><td>6</td><td>6.000</td><td>12.707</td><td>13.336</td><td>-0.630</td></tr><tr><td>7</td><td>7.000</td><td>15.548</td><td>15.333</td><td>0.215</td></tr><tr><td>8</td><td>8.000</td><td>18.572</td><td>17.329</td><td>1.243</td></tr><tr><td>9</td><td>9.000</td><td>19.106</td><td>19.325</td><td>-0.219</td></tr><tr><td>10</td><td>10.000</td><td>21.004</td><td>21.322</td><td>-0.318</td></tr></table>
+<p>n = 15 observaciones · x̄ = 65.0000 · ȳ = 136.7333</p>
+<table><tr><th>i</th><th>xᵢ</th><th>yᵢ</th><th>ŷᵢ</th><th>eᵢ</th></tr><tr><td>1</td><td>58.000</td><td>115.000</td><td>112.583</td><td>2.417</td></tr><tr><td>2</td><td>59.000</td><td>117.000</td><td>116.033</td><td>0.967</td></tr><tr><td>3</td><td>60.000</td><td>120.000</td><td>119.483</td><td>0.517</td></tr><tr><td>4</td><td>61.000</td><td>123.000</td><td>122.933</td><td>0.067</td></tr><tr><td>5</td><td>62.000</td><td>126.000</td><td>126.383</td><td>-0.383</td></tr><tr><td>6</td><td>63.000</td><td>129.000</td><td>129.833</td><td>-0.833</td></tr><tr><td>7</td><td>64.000</td><td>132.000</td><td>133.283</td><td>-1.283</td></tr><tr><td>8</td><td>65.000</td><td>135.000</td><td>136.733</td><td>-1.733</td></tr><tr><td>9</td><td>66.000</td><td>139.000</td><td>140.183</td><td>-1.183</td></tr><tr><td>10</td><td>67.000</td><td>142.000</td><td>143.633</td><td>-1.633</td></tr><tr><td>11</td><td>68.000</td><td>146.000</td><td>147.083</td><td>-1.083</td></tr><tr><td>12</td><td>69.000</td><td>150.000</td><td>150.533</td><td>-0.533</td></tr><tr><td>13</td><td>70.000</td><td>154.000</td><td>153.983</td><td>0.017</td></tr><tr><td>14</td><td>71.000</td><td>159.000</td><td>157.433</td><td>1.567</td></tr><tr><td>15</td><td>72.000</td><td>164.000</td><td>160.883</td><td>3.117</td></tr></table>
 <h2>2. Parámetros óptimos</h2>
 <table>
 <tr><th>Parámetro</th><th>Valor</th></tr>
-<tr><td>Pendiente a*</td><td>1.996388</td></tr>
-<tr><td>Intercepto b*</td><td>1.357995</td></tr>
-<tr><td>S(a*, b*) mínimo</td><td>2.664703</td></tr>
-<tr><td>det(H)</td><td>3300.0000 (&gt; 0 → mínimo global)</td></tr>
-<tr><td>Gradiente: a*, b* (7484 iter.)</td><td>1.996388, 1.357995</td></tr>
+<tr><td>Pendiente a*</td><td>3.450000</td></tr>
+<tr><td>Intercepto b*</td><td>-87.516667</td></tr>
+<tr><td>S(a*, b*) mínimo</td><td>30.233333</td></tr>
+<tr><td>det(H)</td><td>16800.0000 (&gt; 0 → mínimo global)</td></tr>
+<tr><td>Gradiente: a*, b* (550 iter.)</td><td>3.450000, -87.516667</td></tr>
 </table>
 <h2>3. Recta de regresión</h2>
-<p class="ecuacion">ŷ = 1.9964·x + (1.3580)</p>
+<p class="ecuacion">ŷ = 3.4500·x + (-87.5167)</p>
 <h2>4. Conclusiones</h2>
 <ul>
+<li>Problema: Estatura vs. peso promedio de mujeres estadounidenses (30–39 años). Fuente: The World Almanac and Book of Facts (1975) — dataset 'women' de R.</li>
 <li>La Hessiana es definida positiva: (a*, b*) es el <b>mínimo global</b> de S.</li>
-<li>El descenso por gradiente converge al mismo punto desde (0, 0).</li>
-<li>La relación entre las variables es <b>positiva</b>.</li>
+<li>Cada pulgada adicional de estatura se asocia con 3.45 lb más de peso promedio.</li>
+<li>Los residuos forman una U (positivos en los extremos, negativos en el centro):
+la relación es ligeramente curva y un modelo cuadrático la describe mejor.</li>
+<li>Ver docs/Conclusiones.md para el análisis completo.</li>
 </ul>
 <p><i>Generado automáticamente por main.py · Imprimir con Ctrl+P para obtener informe_completo.pdf</i></p>
 </body></html>

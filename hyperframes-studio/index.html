@@ -26,7 +26,7 @@
     <p id="subtitle" class="clip subtitle"
        data-start="1" data-duration="7" data-track-index="1"
        style="position:absolute;top:380px;width:100%;">
-       Análisis de datos con Cálculo Multivariable — proyecto académico
+       <span id="problema">Cálculo Multivariable aplicado a datos reales</span>
     </p>
 
     <div id="hero-estado" class="panel-hero clip"
@@ -36,7 +36,7 @@
       <div id="equation" class="equation">Calculando...</div>
       <div class="chip chip-info" id="chip-estado">PROCESANDO DATOS…</div>
       <div id="total" class="metric">0</div>
-      <p class="subtitle">REGISTROS PROCESADOS</p>
+      <p class="subtitle">DATOS REALES PROCESADOS</p>
     </div>
   </section>
 
@@ -84,7 +84,7 @@
         S(a,b) = Σ (yᵢ − a·xᵢ − b)²
       </div>
       <p class="subtitle" style="font-size:30px;margin-top:18px;">
-        Variables: <b>x</b> independiente · <b>y</b> dependiente · <b>e</b> residuo
+        Datos fijos: <b>xᵢ</b> estatura [in], <b>yᵢ</b> peso [lb] · Variables de S: <b>a</b> y <b>b</b>
       </p>
       <div id="modelo-ecuacion" class="equation">Calculando...</div>
     </div>
@@ -99,10 +99,10 @@
 
     <div class="clip grid-metricas" data-start="28.5" data-duration="11.5"
          data-track-index="1" style="top:230px;">
-      <div class="tarjeta"><div class="etiqueta">∂S/∂a = 0</div>
+      <div class="tarjeta"><div class="etiqueta">∂²S/∂a² (HESSIANO)</div>
         <div class="valor" style="font-size:44px;" id="opt-deriv-a">—</div></div>
-      <div class="tarjeta"><div class="etiqueta">∂S/∂b = 0</div>
-        <div class="valor" style="font-size:44px;" id="opt-deriv-b">0</div></div>
+      <div class="tarjeta"><div class="etiqueta">∂²S/∂b² (HESSIANO)</div>
+        <div class="valor" style="font-size:44px;" id="opt-deriv-b">—</div></div>
       <div class="tarjeta"><div class="etiqueta">det(H) HESSIANA</div>
         <div class="valor" style="font-size:44px;" id="opt-det">—</div></div>
       <div class="tarjeta"><div class="etiqueta">MÍNIMO GLOBAL</div>
@@ -115,7 +115,7 @@
       <div class="equation" style="font-size:36px;" id="opt-ec1">—</div>
       <div class="equation" style="font-size:36px;" id="opt-ec2">—</div>
       <p class="subtitle" style="font-size:28px;margin-top:14px;">
-        Descenso por gradiente: <span id="opt-grad-info">—</span>
+        Descenso por gradiente (x centrada): <span id="opt-grad-info">—</span>
       </p>
     </div>
   </section>
@@ -130,10 +130,10 @@
          data-track-index="1" style="top:240px;">
       <p class="subtitle">GENERADAS EN results/images/ · INTERACTIVAS EN results/html/</p>
       <div class="grid-metricas" style="position:static;margin-top:30px;width:100%;">
-        <div class="tarjeta"><div class="etiqueta">RESIDUOS</div><div class="valor" style="font-size:40px;">residuos.png</div></div>
-        <div class="tarjeta"><div class="etiqueta">CURVAS DE NIVEL</div><div class="valor" style="font-size:40px;">curvas_nivel.png</div></div>
-        <div class="tarjeta"><div class="etiqueta">CONVERGENCIA</div><div class="valor" style="font-size:40px;">convergencia.html</div></div>
-        <div class="tarjeta"><div class="etiqueta">MAPAS DE CALOR</div><div class="valor" style="font-size:40px;">mapas_calor.html</div></div>
+        <div class="tarjeta"><div class="etiqueta">TRAZAS</div><div class="valor" style="font-size:34px;">04_trazas.png</div></div>
+        <div class="tarjeta"><div class="etiqueta">CURVAS DE NIVEL</div><div class="valor" style="font-size:34px;">05_curvas_nivel.png</div></div>
+        <div class="tarjeta"><div class="etiqueta">RESIDUOS vs x</div><div class="valor" style="font-size:34px;">06_residuos_vs_x.png</div></div>
+        <div class="tarjeta"><div class="etiqueta">HISTOGRAMA</div><div class="valor" style="font-size:34px;">07_histograma.png</div></div>
       </div>
       <p class="subtitle" style="font-size:30px;margin-top:26px;" id="vis2d-resumen">—</p>
     </div>
@@ -147,19 +147,19 @@
     </h2>
     <div class="clip panel-hero" data-start="52.5" data-duration="11.5"
          data-track-index="1" style="top:240px;">
-      <p class="subtitle">SUPERFICIE DEL ERROR · PLANO DE REGRESIÓN · TRAYECTORIA</p>
+      <p class="subtitle">S(a, b) ES UN PARABOLOIDE ELÍPTICO: UN SOLO MÍNIMO</p>
       <div class="equation" style="font-size:40px;margin-top:26px;">
-        superficie_error.html — gira con el mouse
+        modelos_3d.html — gira con el mouse
       </div>
       <div class="grid-metricas" style="position:static;margin-top:26px;width:100%;">
-        <div class="tarjeta"><div class="etiqueta">SUPERFICIE 3D</div>
-          <div class="valor" style="font-size:38px;">regresion_3d.png</div></div>
-        <div class="tarjeta"><div class="etiqueta">HESSIANA (mapa)</div>
-          <div class="valor" style="font-size:38px;">hessiana.png</div></div>
-        <div class="tarjeta"><div class="etiqueta">INTERACTIVO</div>
-          <div class="valor" style="font-size:38px;">Plotly ✓</div></div>
-        <div class="tarjeta"><div class="etiqueta">GIRO AUTOMÁTICO</div>
-          <div class="valor" style="font-size:38px;">360° ✓</div></div>
+        <div class="tarjeta"><div class="etiqueta">SUPERFICIE + MÍNIMO</div>
+          <div class="valor" style="font-size:34px;">S(a, b) 3D</div></div>
+        <div class="tarjeta"><div class="etiqueta">TRAZAS 3D</div>
+          <div class="valor" style="font-size:34px;">planos a, b = cte</div></div>
+        <div class="tarjeta"><div class="etiqueta">EXPLORADOR</div>
+          <div class="valor" style="font-size:34px;">recta ↔ punto</div></div>
+        <div class="tarjeta"><div class="etiqueta">MÉTODOS</div>
+          <div class="valor" style="font-size:34px;">gradiente · Newton</div></div>
       </div>
     </div>
   </section>
@@ -174,11 +174,11 @@
          data-track-index="1" style="top:230px;">
       <div class="tarjeta"><div class="etiqueta">a* ANALÍTICO</div>
         <div class="valor" id="cmp-a-an">—</div></div>
-      <div class="tarjeta"><div class="etiqueta">a* GRADIENTE</div>
+      <div class="tarjeta"><div class="etiqueta">a* NUMÉRICO</div>
         <div class="valor" id="cmp-a-gr">—</div></div>
       <div class="tarjeta"><div class="etiqueta">b* ANALÍTICO</div>
         <div class="valor" id="cmp-b-an">—</div></div>
-      <div class="tarjeta"><div class="etiqueta">b* GRADIENTE</div>
+      <div class="tarjeta"><div class="etiqueta">b* NUMÉRICO</div>
         <div class="valor" id="cmp-b-gr">—</div></div>
     </div>
     <div class="clip panel-hero" data-start="65" data-duration="11" data-track-index="2"
@@ -219,19 +219,19 @@
     </h2>
     <div class="clip grid-metricas" data-start="88.5" data-duration="9.5"
          data-track-index="1" style="top:230px;">
-      <div class="tarjeta"><div class="etiqueta">PDF</div>
-        <div class="valor" style="font-size:38px;">informe</div></div>
+      <div class="tarjeta"><div class="etiqueta">INFORME</div>
+        <div class="valor" style="font-size:38px;">imprimible</div></div>
       <div class="tarjeta"><div class="etiqueta">EXCEL</div>
         <div class="valor" style="font-size:38px;">.xlsx</div></div>
       <div class="tarjeta"><div class="etiqueta">HTML 3D</div>
-        <div class="valor" style="font-size:38px;">4 dashboards</div></div>
+        <div class="valor" style="font-size:38px;">modelos 3D</div></div>
       <div class="tarjeta"><div class="etiqueta">IMÁGENES + DATA</div>
         <div class="valor" style="font-size:38px;">PNG · CSV · JSON</div></div>
     </div>
     <div class="clip panel-hero" data-start="89" data-duration="9" data-track-index="2"
          style="top:560px;padding:36px;">
       <p class="subtitle" style="font-size:32px;">
-        Todo generado automáticamente en <b>results/</b> por src/exportar_resultados.py
+        Todo generado automáticamente en <b>results/</b> por <b>src/main.py</b>
       </p>
       <div class="chip chip-ok" style="margin-top:20px;">GENERACIÓN ✓ COMPLETA</div>
     </div>
@@ -255,6 +255,7 @@ const S = id => document.getElementById(id);
 
 /* ── 1. Inicio ─────────────────────────────────────────────── */
 S("equation").textContent = data.ecuacion;
+if (data.problema) S("problema").textContent = data.problema;
 S("total").textContent    = data.total;
 S("chip-estado").textContent = data.esMinimoGlobal
     ? "EJECUCIÓN COMPLETA ✓ — MÍNIMO GLOBAL CONFIRMADO"
@@ -264,6 +265,10 @@ S("chip-estado").className = "chip " + (data.esMinimoGlobal ? "chip-ok" : "chip-
 /* ── 2. Datos ──────────────────────────────────────────────── */
 S("d-total").textContent = data.total;
 S("d-r2").textContent    = f(data.r2, 4);
+if (data.medias) {
+    S("d-media-x").textContent = f(data.medias.x, 2) + " in";
+    S("d-media-y").textContent = f(data.medias.y, 2) + " lb";
+}
 
 // Tabla de puntos con residuos
 const tbody = S("tabla-datos").querySelector("tbody");
@@ -271,11 +276,11 @@ data.datos.forEach((p, i) => {
     const yp = data.pendiente * p.x + data.intercepto;
     const e  = p.y - yp;
     const tr = document.createElement("tr");
-    tr.innerHTML = `<td>${i + 1}</td><td>${f(p.x, 2)}</td><td>${f(p.y, 3)}</td>` +
-                   `<td>${f(yp, 3)}</td><td>${f(e, 3)}</td>`;
+    tr.innerHTML = `<td>${i + 1}</td><td>${f(p.x, 0)}</td><td>${f(p.y, 0)}</td>` +
+                   `<td>${f(yp, 2)}</td><td>${f(e, 2)}</td>`;
     tbody.appendChild(tr);
 });
-S("chip-datos").textContent = `VALIDACIÓN ✓ — ${data.total} registros, sin datos faltantes`;
+S("chip-datos").textContent = `DATOS REALES ✓ — ${data.total} registros · ${data.fuente || ""}`;
 
 /* ── 3. Modelo ─────────────────────────────────────────────── */
 S("modelo-ecuacion").textContent = `Óptimo:  ${data.ecuacion}`;
@@ -284,12 +289,16 @@ S("modelo-ecuacion").textContent = `Óptimo:  ${data.ecuacion}`;
 S("opt-det").textContent = f(data.detHessiana, 1);
 S("opt-min").textContent = data.esMinimoGlobal ? "SÍ ✓" : "NO";
 if (data.hessiana) {
-    S("opt-deriv-a").textContent = `2Σx² = ${f(data.hessiana[0][0], 1)}`;
+    S("opt-deriv-a").textContent = `Sₐₐ = ${f(data.hessiana[0][0], 0)}`;
+    S("opt-deriv-b").textContent = `S_bb = ${f(data.hessiana[1][1], 0)}`;
 }
-S("opt-ec1").textContent =
-    `${f(data.hessiana ? data.hessiana[0][0] : 0, 1)}·a + ${f(data.hessiana ? data.hessiana[0][1] : 0, 1)}·b = Σxy`;
-S("opt-ec2").textContent =
-    `${f(data.hessiana ? data.hessiana[1][0] : 0, 1)}·a + ${data.total}·b = Σy`;
+if (data.sumas) {
+    // Ecuaciones normales: Σx²·a + Σx·b = Σxy ;  Σx·a + n·b = Σy
+    S("opt-ec1").textContent =
+        `${f(data.sumas.xx, 0)}·a + ${f(data.sumas.x, 0)}·b = ${f(data.sumas.xy, 0)}`;
+    S("opt-ec2").textContent =
+        `${f(data.sumas.x, 0)}·a + ${data.total}·b = ${f(data.sumas.y, 0)}`;
+}
 S("opt-grad-info").textContent =
     `${data.gradiente.iteraciones} iteraciones — convergió: ${data.gradiente.convergio ? "sí" : "no"}`;
 
@@ -314,6 +323,7 @@ S("cmp-error-min").textContent =
 
 /* ── 8. Experimentos ───────────────────────────────────────── */
 S("exp-mse").textContent  = f(data.mse, 4);
+if (data.gradiente.eta) S("exp-eta").textContent = Number(data.gradiente.eta).toExponential(2);
 S("exp-rmse").textContent = f(data.rmse, 4);
 S("exp-iters").textContent = data.gradiente.iteraciones;
 S("exp-relacion").textContent = data.relacion;

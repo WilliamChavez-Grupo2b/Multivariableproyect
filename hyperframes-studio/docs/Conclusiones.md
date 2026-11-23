@@ -1,74 +1,62 @@
-Los valores \(a^*\) y \(b^*\) corresponden a un mínimo global de la función de error cuadrático, siempre que existan al menos dos valores diferentes de \(x\).
-Esto es importante porque demuestra matemáticamente que no encontramos simplemente cualquier punto crítico, sino la combinación de parámetros que produce el menor error cuadrático total.
-Si todos los valores de \(x\) son iguales, la pendiente y el intercepto no pueden determinarse de manera única mediante estos datos.
-7. ¿Qué sucede gráficamente con los valores?
-Esta parte es muy importante para interpretar correctamente el ejercicio.
-Cuando representamos los datos en un plano cartesiano, obtenemos una serie de puntos:
-\[ (x_1,y_1),(x_2,y_2),\ldots,(x_n,y_n) \]
-Cada punto representa una observación real.
-La recta:
-\[ \hat y=a^*x+b^* \]
-representa la tendencia lineal que mejor se ajusta a esos puntos según el criterio de mínimos cuadrados.
-Ejemplo visual: relación positiva
-Regression Modelling for Biostatistics 1 - 1  Simple Linear Regression
-bookdown.org
-Los puntos tienden a subir de izquierda a derecha. La pendiente es positiva.
-Ejemplo visual: relación negativa
-Correlation and Regression
-2012books.lardbucket.org
-Los puntos tienden a bajar de izquierda a derecha. La pendiente es negativa.
-Ejemplo visual: relación lineal débil o inexistente
-Regressione lineare semplice
-webtutordimatematica.it
-Los puntos no muestran una tendencia lineal clara. La pendiente puede estar cerca de cero.
-7.1. ¿Qué significa que los valores se atraigan o se repelan?
-Hay que aclarar algo importante: en este ejercicio no existen fuerzas físicas de atracción o repulsión. No estamos estudiando cargas eléctricas ni partículas.
-Lo que estamos estudiando es cómo se relacionan dos variables.
-Sin embargo, podemos interpretar el comportamiento de los puntos mediante tres situaciones:
-Caso 1. Relación positiva: los valores aumentan juntos
-Cuando la pendiente es positiva:
-\[ a^*>0 \]
-Significa que cuando aumenta \(x\), generalmente también aumenta \(y\).
-Por ejemplo:
-•	A mayor cantidad de horas de estudio, generalmente puede haber mayor rendimiento académico.
-•	A mayor cantidad de productos vendidos, mayores pueden ser los ingresos.
-En la gráfica, la recta sube de izquierda a derecha.
-Caso 2. Relación negativa: los valores se comportan en sentido contrario
-Cuando la pendiente es negativa:
-\[ a^*<0 \]
-Significa que cuando aumenta \(x\), generalmente disminuye \(y\).
-Por ejemplo:
-•	A mayor velocidad de un vehículo, menor puede ser el tiempo necesario para recorrer una distancia fija.
-•	A mayor precio de un producto, la cantidad demandada puede disminuir.
-En la gráfica, la recta baja de izquierda a derecha.
-Esto no significa que las variables se repelan físicamente, sino que presentan una relación inversa.
-Caso 3. Relación lineal débil o inexistente
-Cuando la pendiente es aproximadamente cero:
-\[ a^*\approx 0 \]
-Significa que no se observa una tendencia lineal importante entre las variables.
-La recta será aproximadamente horizontal.
-Esto no significa necesariamente que las variables no tengan ninguna relación: podrían presentar una relación curva u otro comportamiento que el modelo lineal no logra representar.
-7.2. ¿Qué sucede con los puntos que están por encima y por debajo de la recta?
-Aquí aparece otro concepto fundamental: los residuos.
-Recordemos:
-\[ e_i=y_i-\hat y_i \]
-Existen tres posibilidades:
-Situación	Resultado	Interpretación
-Punto por encima de la recta	\(e_i>0\)	El valor real es mayor que el estimado.
-Punto por debajo de la recta	\(e_i<0\)	El valor real es menor que el estimado.
-Punto sobre la recta	\(e_i=0\)	El valor real coincide con el estimado.
-¿Por qué es importante?
-Porque la función de error cuadrático intenta reducir las distancias verticales entre los puntos reales y la recta.
-Por ejemplo, si un punto está muy alejado de la recta, su error al cuadrado será considerablemente mayor.
-Por eso, el método de mínimos cuadrados busca una recta que equilibre los errores de todas las observaciones.
-8. Verificación mediante herramientas computacionales
-Después de realizar todo el procedimiento matemático, podemos comprobar los resultados mediante programación en Python.
-La computadora permite:
-•	Introducir los datos experimentales.
-•	Calcular la pendiente óptima.
-•	Calcular el intercepto.
-•	Obtener la ecuación de regresión.
-•	Calcular los errores individuales.
-•	Calcular el error cuadrático total.
-•	Dibujar los puntos y la recta.
-•	Analizar si existe una relación positiva, negativa o débil.
+# Conclusiones
+
+## Respuesta a la pregunta central
+
+> *¿Cómo se puede utilizar el Cálculo Multivariable para determinar y analizar el modelo lineal
+> que mejor representa un conjunto de datos?*
+
+Convirtiendo la pregunta "¿cuál es la mejor recta?" en un **problema de optimización de una función
+de dos variables**. Cada recta y = ax + b es un punto (a, b) del plano, y su error total
+S(a, b) = Σ(yᵢ − axᵢ − b)² es la "altura" de ese punto. La mejor recta es el **punto más bajo de la
+superficie z = S(a, b)**, y el Cálculo Multivariable da las herramientas para encontrarlo y
+justificarlo:
+
+1. **Analítico:** las derivadas parciales y la condición ∇S = 0 dan un sistema lineal de 2×2
+   (las ecuaciones normales). Resuelto a mano con los 15 datos reales da
+   **a* = 3.45 lb/in y b* = −87.5167 lb**, con S_mín = 30.2333 lb².
+2. **Hessiano:** H = [[127310, 1950], [1950, 30]] tiene Sₐₐ > 0 y det H = 16800 > 0. Es
+   definido positivo y constante, así que (a*, b*) es el **mínimo global y único**, no un
+   máximo ni un punto de silla.
+3. **Geométrico:** S es un paraboloide elíptico. Sus trazas son parábolas que abren hacia arriba y
+   sus curvas de nivel son elipses concéntricas cuyo centro es exactamente (a*, b*).
+4. **Computacional:** el código propio (que programa las fórmulas deducidas), `numpy.polyfit` y
+   `scipy.stats.linregress` dan los mismos valores (diferencias ~10⁻¹⁴). Con el cálculo manual la
+   diferencia es ~10⁻⁵ y se debe solo al redondeo.
+
+## Sobre el problema real (estatura y peso)
+
+- Por cada **pulgada** adicional de estatura, el peso promedio de las mujeres de 30–39 años
+  aumenta **3.45 lb** (≈ 0.62 kg por cada cm). La relación es positiva y muy fuerte
+  (r = 0.995, R² = 0.991).
+- El error típico de la recta es **RMSE = 1.42 lb**, alrededor del 1 % del peso medio. Para
+  estimar el peso promedio a partir de la estatura **dentro del rango medido (58–72 in)**, la recta
+  es útil.
+- El intercepto b* = −87.5 lb no tiene interpretación física. Muestra que la recta **no debe
+  extrapolarse** lejos de los datos.
+
+## Reflexión crítica: limitaciones del modelo lineal
+
+- **R² alto no significa modelo correcto.** Los residuos tienen un patrón en **U**: positivos en los
+  extremos y negativos en el centro. La recta sobreestima el peso en las estaturas medias y lo
+  subestima en las bajas y altas: hay una **desviación sistemática**.
+- El modelo cuadrático reduce el error de S = 30.23 a S = 1.77, y la prueba F confirma que la
+  curvatura es real. Sin embargo, las predicciones de ambos modelos difieren a lo sumo 2.5 lb. La
+  elección depende del propósito: **la recta para interpretar y estimar, la cuadrática para
+  describir la forma exacta.**
+- Los datos son **promedios** (no personas individuales) y de 1975, de una población específica.
+  El modelo no describe a una persona concreta, que puede estar muy lejos del promedio, ni a
+  poblaciones actuales o de otros países.
+- Los puntos de los extremos (58 y 72 in) son los más influyentes. Quitar x = 72 cambia la
+  pendiente un 3 %. El ajuste es robusto, pero depende más de los extremos que del centro.
+
+## Lo que aprendimos de la geometría
+
+- La forma de la superficie la determina el Hessiano. Aquí sus autovalores difieren en un factor
+  ~10⁶: S es un **valle largo y estrecho**, porque a y b están acoplados (aumentar a se puede
+  compensar bajando b).
+- Esa forma explica por qué el descenso por gradiente simple **no logra converger** en 200 000
+  iteraciones, mientras que centrar x (que vuelve diagonal a H) lo hace converger en 550 y el
+  método de Newton (que usa H) llega en **un solo paso**.
+- La solución analítica ∇S = 0 no tiene ese problema: da el mínimo **exacto** sin importar la
+  forma del valle. El computador no reemplazó el desarrollo matemático. Sirvió para verificarlo,
+  visualizarlo y descubrir sus limitaciones.

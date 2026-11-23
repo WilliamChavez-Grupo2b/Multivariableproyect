@@ -11,7 +11,7 @@
     "generar": "python src/generar_datos.py",
     "analizar": "python src/main.py --sin-gui",
     "probar": "python tests/pruebas.py",
-    "build": "python src/generar_datos.py && python src/main.py --sin-gui && node scripts/procesar-datos.mjs && npm run probar",
+    "build": "python src/main.py --sin-gui && node scripts/procesar-datos.mjs && npm run probar",
     "pipeline": "npm run build"
   }
 }

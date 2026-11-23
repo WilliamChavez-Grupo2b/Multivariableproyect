@@ -1,4 +1,9 @@
 # Planteamiento 
+
+> **Problema real elegido:** estatura (x, en pulgadas) vs. peso promedio (y, en libras) de mujeres
+> estadounidenses de 30 a 39 años, 15 observaciones. Fuente: *The World Almanac and Book of Facts*
+> (1975), ver `data/input/FUENTE.md`. Cálculo con números: `calculo_manual.md`.
+
 Se tiene un conjunto de datos:
 \[ (x_1,y_1),(x_2,y_2),\ldots,(x_n,y_n) \]
 Cada pareja representa una observación.

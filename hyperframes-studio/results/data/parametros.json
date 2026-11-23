@@ -1,37 +1,37 @@
 {
   "modelo": "y = a·x + b (mínimos cuadrados)",
-  "n": 10,
-  "pendiente_optima": 1.9963878242424251,
-  "intercepto_optimo": 1.357995466666661,
-  "ecuacion": "y = 1.9964x + 1.3580",
-  "error_cuadratico_minimo": 2.6647027364399447,
+  "n": 15,
+  "pendiente_optima": 3.45,
+  "intercepto_optimo": -87.51666666666667,
+  "ecuacion": "y = 3.4500x + -87.5167",
+  "error_cuadratico_minimo": 30.233333333333306,
   "sumatorias": {
-    "sx": 55.0,
-    "sy": 123.38128499999999,
-    "sxy": 843.299063,
-    "sxx": 385.0
+    "sx": 975.0,
+    "sy": 2051.0,
+    "sxy": 134281.0,
+    "sxx": 63655.0
   },
   "medias": {
-    "x": 5.5,
-    "y": 12.3381285
+    "x": 65.0,
+    "y": 136.73333333333332
   },
   "hessiana": [
     [
-      770.0,
-      110.0
+      127310.0,
+      1950.0
     ],
     [
-      110.0,
-      20.0
+      1950.0,
+      30.0
     ]
   ],
-  "det_hessiana": 3300.0,
+  "det_hessiana": 16800.0,
   "es_minimo_global": true,
   "gradiente": {
-    "a": 1.9963878245804598,
-    "b": 1.3579954643133234,
-    "iteraciones": 7484,
+    "a": 3.45,
+    "b": -87.51666666671355,
+    "iteraciones": 550,
     "convergio": true,
-    "eta": 0.0006329113924050633
+    "eta": 7.852991989948171e-06
   }
 }

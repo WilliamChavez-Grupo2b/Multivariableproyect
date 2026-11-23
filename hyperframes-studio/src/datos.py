@@ -1,7 +1,7 @@
 """
 datos.py
 --------
-Carga y valida el conjunto de datos desde el CSV generado automáticamente:
+Carga y valida el conjunto de datos REALES del problema (ver data/input/FUENTE.md):
 
     <raíz>/data/input/datos.csv  (raíz = hyperframes-studio)
 
@@ -25,13 +25,23 @@ import numpy as np
 RAIZ = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 RUTA_CSV = os.path.join(RAIZ, "data", "input", "datos.csv")
 
+# ── Descripción del problema real (ver data/input/FUENTE.md) ────────────────
+PROBLEMA = "Estatura vs. peso promedio de mujeres estadounidenses (30–39 años)"
+NOMBRE_X = "Estatura"
+NOMBRE_Y = "Peso promedio"
+UNIDAD_X = "in"
+UNIDAD_Y = "lb"
+ETIQUETA_X = f"{NOMBRE_X} x [{UNIDAD_X}]"
+ETIQUETA_Y = f"{NOMBRE_Y} y [{UNIDAD_Y}]"
+FUENTE = "The World Almanac and Book of Facts (1975) — dataset 'women' de R"
+
 
 def cargar_csv(ruta=RUTA_CSV) -> tuple[np.ndarray, np.ndarray]:
     """Lee el CSV y devuelve los arrays (X, Y). Lanza errores descriptivos."""
     if not os.path.exists(ruta):
         raise FileNotFoundError(
             f"No se encontró el archivo de datos: {ruta}\n"
-            "Ejecuta primero: python generar_datos.py"
+            "Revisa data/input/FUENTE.md para restaurar los datos reales."
         )
 
     xs, ys = [], []
@@ -85,9 +95,11 @@ def resumen(x: np.ndarray, y: np.ndarray) -> None:
     """Imprime un resumen tabular de los datos cargados."""
     n = len(x)
     print(f"\n{'─'*35}")
+    print(f"  {PROBLEMA}")
+    print(f"  Fuente: {FUENTE}")
     print(f"  DATOS (desde CSV)  (n = {n} observaciones)")
     print(f"{'─'*35}")
-    print(f"  {'i':>3}  {'x_i':>10}  {'y_i':>10}")
+    print(f"  {'i':>3}  {'x_i ['+UNIDAD_X+']':>10}  {'y_i ['+UNIDAD_Y+']':>10}")
     print(f"{'─'*35}")
     for i, (xi, yi) in enumerate(zip(x, y), start=1):
         print(f"  {i:>3}  {xi:>10.4f}  {yi:>10.4f}")

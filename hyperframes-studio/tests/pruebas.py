@@ -14,12 +14,15 @@ Cubre:
   7. Descenso por gradiente (converge al mismo resultado)
   8. Comparación de métodos
   9. Métricas
- 10. Exportación a HyperFrames (archivos generados)
+ 10. Exportación a HyperFrames (archivos generados por main.py)
+ 11. Análisis: comparación con bibliotecas, Hessiano numérico, Newton,
+     modelo cuadrático propio
 """
 
 import os
 import sys
 import json
+import tempfile
 import numpy as np
 
 # Consolas de Windows (cp1252): forzar UTF-8
@@ -37,9 +40,9 @@ from datos import cargar_csv, validar_datos, obtener_datos
 from modelo import prediccion, residuos, error_cuadratico
 from derivadas import gradiente as calc_gradiente, hessiana, verificar_minimo
 from analitico import resolver_analitico, resolver_sistema_matricial, reporte_analitico
-from gradiente import descenso_gradiente, ajustar_eta
+from gradiente import descenso_gradiente, ajustar_eta, metodo_newton
 from metricas import r_cuadrado, mse, rmse, mae, analizar_pendiente
-from exportar_hyperframes import exportar
+import analisis
 
 PASS = "✓"
 FAIL = "✗"
@@ -68,7 +71,8 @@ def t_generador():
     x3, y3, _ = generar_datos(semilla=8)
     assert not np.allclose(y1, y3), "Semillas distintas deben dar datos distintos"
     assert len(x1) >= 2, "Debe generar al menos 2 puntos"
-    ruta = guardar_csv(x1, y1)
+    # se escribe en una carpeta temporal: NUNCA se tocan los datos reales
+    ruta = guardar_csv(x1, y1, os.path.join(tempfile.mkdtemp(), "sint.csv"))
     assert os.path.exists(ruta), "El CSV no fue creado"
 
 def t_generador_parametros():
@@ -158,9 +162,10 @@ def t_hessiana_coincide_con_numpy():
 
 # ── 7. Descenso por gradiente ────────────────────────────────────────────────
 def t_gradiente_converge():
+    # Con los datos reales el Hessiano está mal condicionado (κ ≈ 1e6):
+    # se usa la versión con x centrada, que sí converge.
     x, y = obtener_datos()
-    eta = ajustar_eta(x)
-    res = descenso_gradiente(x, y, eta=eta, max_iter=50_000)
+    res = descenso_gradiente(x, y, centrar=True, max_iter=50_000)
     assert res["convergio"], "El descenso no convergió"
     a_an, b_an = resolver_analitico(x, y)
     assert abs(res["a_star"] - a_an) < 1e-4
@@ -170,7 +175,7 @@ def t_gradiente_converge():
 def t_comparacion_metodos():
     x, y = obtener_datos()
     r = reporte_analitico(x, y)
-    res = descenso_gradiente(x, y, eta=ajustar_eta(x), max_iter=50_000)
+    res = descenso_gradiente(x, y, max_iter=5_000)
     s_grad = error_cuadratico(x, y, res["a_star"], res["b_star"])
     assert s_grad >= r["s_min"] - 1e-9, "El gradiente no puede tener menor error que el mínimo analítico"
 
@@ -189,16 +194,44 @@ def t_clasificacion_pendiente():
 
 # ── 10. Exportación HyperFrames ──────────────────────────────────────────────
 def t_export_hyperframes():
-    res = exportar()
     js_path = os.path.join(RAIZ, "data", "generated", "datos.js")
     json_path = os.path.join(RAIZ, "data", "generated", "datos.json")
-    assert os.path.exists(js_path) and os.path.exists(json_path)
+    assert os.path.exists(js_path) and os.path.exists(json_path), "Ejecuta primero src/main.py"
     contenido = open(js_path, encoding="utf-8").read()
     assert contenido.startswith("window.HYPEFRAMES_DATA")
     datos_js = json.loads(contenido.replace("window.HYPEFRAMES_DATA = ", "").rstrip(";\n"))
-    assert datos_js["total"] == res["total"]
-    assert abs(datos_js["pendiente"] - res["pendiente"]) < 1e-12
-    assert len(datos_js["datos"]) == res["total"]
+    x, y = obtener_datos()
+    a, b = resolver_analitico(x, y)
+    assert datos_js["total"] == len(x)
+    assert abs(datos_js["pendiente"] - a) < 1e-9
+    assert len(datos_js["datos"]) == len(x)
+
+# ── 11. Análisis ─────────────────────────────────────────────────────────────
+def t_comparacion_bibliotecas():
+    x, y = obtener_datos()
+    c = analisis.comparar_metodos(x, y)
+    for nombre, manual, cod, lib, d3, d2 in c["filas"]:
+        assert d2 < 1e-8, f"{nombre}: código propio y biblioteca difieren {d2}"
+        assert d3 < 1e-3, f"{nombre}: el valor manual difiere {d3} (¿error a mano?)"
+
+def t_hessiano_numerico():
+    x, y = obtener_datos()
+    a, b = resolver_analitico(x, y)
+    v = analisis.verificar_hessiano_numerico(x, y, a, b)
+    assert v["error_rel"] < 1e-5 and v["definida_positiva"] and v["simetrica"]
+
+def t_newton_un_paso():
+    x, y = obtener_datos()
+    a, b = resolver_analitico(x, y)
+    nw = metodo_newton(x, y, 10.0, 10.0)
+    assert abs(nw["a_star"] - a) < 1e-9 and abs(nw["b_star"] - b) < 1e-6
+
+def t_cuadratico_propio():
+    x, y = obtener_datos()
+    p = analisis.ajuste_cuadratico_propio(x, y)
+    assert np.allclose(p, np.polyfit(x, y, 2), rtol=1e-6)
+    cq = analisis.comparar_cuadratico(x, y)
+    assert cq["S_cuad"] <= cq["S_lineal"]
 
 
 if __name__ == "__main__":
@@ -220,6 +253,10 @@ if __name__ == "__main__":
     prueba("9. Métricas: R²=1 y errores=0 (perfecto)", t_metricas_ajuste_perfecto)
     prueba("9b. Clasificación de pendiente", t_clasificacion_pendiente)
     prueba("10. Exportación a HyperFrames (js/json)", t_export_hyperframes)
+    prueba("11. Manual = código propio = biblioteca", t_comparacion_bibliotecas)
+    prueba("11b. Hessiano numérico = analítico, def. positivo", t_hessiano_numerico)
+    prueba("11c. Newton llega al mínimo en 1 paso", t_newton_un_paso)
+    prueba("11d. Ajuste cuadrático propio = polyfit", t_cuadratico_propio)
 
     ok = sum(1 for _, ok, _ in resultados if ok)
     print(f"\n═══════ RESULTADO: {ok}/{len(resultados)} pruebas pasaron ═══════\n")

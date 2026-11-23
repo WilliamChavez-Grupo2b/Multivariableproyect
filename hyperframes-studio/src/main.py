@@ -57,6 +57,7 @@ from gradiente import (descenso_gradiente, ajustar_eta, imprimir_resultado_gradi
 from datos import ETIQUETA_X, ETIQUETA_Y, PROBLEMA, FUENTE
 import analisis
 import graficas
+import modelos_3d
 
 # ── Rutas ────────────────────────────────────────────────────────────────────
 RAIZ = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
@@ -424,7 +425,13 @@ def exportar_hyperframes(x, y, r, h, g, res_metricas) -> dict:
         "pendiente": a,
         "intercepto": b,
         "errorCuadratico": r["s_min"],
-        "ecuacion": f"y = {a:.3f}x + {b:.3f}",
+        "ecuacion": f"ŷ = {a:.4f}·x {b:+.4f}",
+        "problema": PROBLEMA,
+        "fuente": FUENTE,
+        "etiquetaX": ETIQUETA_X,
+        "etiquetaY": ETIQUETA_Y,
+        "sumas": {"x": r["sum_x"], "y": r["sum_y"], "xy": r["sum_xy"], "xx": r["sum_x2"]},
+        "medias": {"x": r["x_mean"], "y": r["y_mean"]},
         "r2": r_cuadrado(y, y_hat),
         "mse": mse(y, y_hat),
         "rmse": rmse(y, y_hat),
@@ -439,6 +446,8 @@ def exportar_hyperframes(x, y, r, h, g, res_metricas) -> dict:
             "b": g["b_star"],
             "iteraciones": g["iteraciones"],
             "convergio": bool(g["convergio"]),
+            "eta": g.get("eta"),
+            "centrado": bool(g.get("centrado", False)),
         },
         "datos": [{"x": float(xi), "y": float(yi)} for xi, yi in zip(x, y)],
     }
@@ -526,6 +535,9 @@ def main(mostrar_graficas: bool = True) -> None:
     # 7b. Dashboards interactivos + informe → results/html/
     print("\n• Dashboards interactivos (Plotly) e informe imprimible:")
     exportar_html(x, y, r, h, res_grad)
+    ruta_3d = modelos_3d.generar_modelos_3d(x, y, a_star, b_star, gd_simple, gd_centrado,
+                                            newton, hv, calidad)
+    print(f"   -> modelos 3D interactivos: {ruta_3d}")
     print(f"   -> {os.path.join(RESULTS, 'html')}")
 
     # 7c. Excel → results/excel/

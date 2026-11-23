@@ -3,7 +3,21 @@ window.HYPEFRAMES_DATA = {
   "pendiente": 3.45,
   "intercepto": -87.51666666666667,
   "errorCuadratico": 30.233333333333306,
-  "ecuacion": "y = 3.450x + -87.517",
+  "ecuacion": "ŷ = 3.4500·x -87.5167",
+  "problema": "Estatura vs. peso promedio de mujeres estadounidenses (30–39 años)",
+  "fuente": "The World Almanac and Book of Facts (1975) — dataset 'women' de R",
+  "etiquetaX": "Estatura x [in]",
+  "etiquetaY": "Peso promedio y [lb]",
+  "sumas": {
+    "x": 975.0,
+    "y": 2051.0,
+    "xy": 134281.0,
+    "xx": 63655.0
+  },
+  "medias": {
+    "x": 65.0,
+    "y": 136.73333333333332
+  },
   "r2": 0.9910098326857505,
   "mse": 2.0155555555555673,
   "rmse": 1.4197026292697945,
@@ -25,7 +39,9 @@ window.HYPEFRAMES_DATA = {
     "a": 3.45,
     "b": -87.51666666671355,
     "iteraciones": 550,
-    "convergio": true
+    "convergio": true,
+    "eta": 0.001694915254237288,
+    "centrado": true
   },
   "datos": [
     {

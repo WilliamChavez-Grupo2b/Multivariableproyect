@@ -1,6 +1,9 @@
 # Interpretación geométrica de S(a, b) (§7.5–7.8)
 
 Figuras en `results/images/` (se generan con `python src/main.py`).
+Gráficas 3D: `12_3d_superficie_trazas.png`, `13_3d_curvas_nivel.png`, `14_3d_tazon_centrado.png`,
+`15_3d_recta_y_superficie.png`, `16_3d_metodos_numericos.png`, `17_3d_contribucion_errores.png`.
+Versión interactiva: `results/html/modelos_3d.html`.
 
 ## Idea clave: ¿qué forma tiene S(a, b)?
 

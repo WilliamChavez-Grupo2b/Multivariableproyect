@@ -57,6 +57,7 @@ from gradiente import (descenso_gradiente, ajustar_eta, imprimir_resultado_gradi
 from datos import ETIQUETA_X, ETIQUETA_Y, PROBLEMA, FUENTE
 import analisis
 import graficas
+import graficas_3d
 import modelos_3d
 
 # ── Rutas ────────────────────────────────────────────────────────────────────
@@ -530,6 +531,7 @@ def main(mostrar_graficas: bool = True) -> None:
     print("\n• Gráficas (11 PNG, una por sección del enunciado):")
     graficas.generar_todas(x, y, a_star, b_star, resid, gd_simple, gd_centrado,
                            newton, inf, cq)
+    graficas_3d.generar_graficas_3d(x, y, a_star, b_star, gd_simple, gd_centrado, newton)
     print(f"   -> {os.path.join(RESULTS, 'images')}")
 
     # 7b. Dashboards interactivos + informe → results/html/

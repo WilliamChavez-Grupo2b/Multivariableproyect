@@ -16,6 +16,38 @@ el modelo lineal que mejor representa un conjunto de datos?
   numéricos en 3D.
 - ❓ **Preguntas probables y respuestas:** `hyperframes-studio/docs/guia_sustentacion.md`.
 
+## Gráficas 3D
+
+**Superficie de error z = S(a, b) con sus trazas.** Es un paraboloide: las trazas son parábolas que
+abren hacia arriba y el mínimo (rombo rojo) es la recta óptima.
+
+![Superficie y trazas](hyperframes-studio/results/images/12_3d_superficie_trazas.png)
+
+**Curvas de nivel en 3D.** Son cortes horizontales de la superficie: elipses concéntricas centradas
+en el mínimo.
+
+![Curvas de nivel 3D](hyperframes-studio/results/images/13_3d_curvas_nivel.png)
+
+**Paraboloide elíptico con x centrada.** Es la misma función vista como un “tazón” con un solo mínimo.
+
+![Tazón](hyperframes-studio/results/images/14_3d_tazon_centrado.png)
+
+**Cada recta es un punto de la superficie.** La mejor recta es el fondo del paraboloide.
+
+![Recta y superficie](hyperframes-studio/results/images/15_3d_recta_y_superficie.png)
+
+**Métodos numéricos bajando por la superficie.**
+
+![Métodos numéricos 3D](hyperframes-studio/results/images/16_3d_metodos_numericos.png)
+
+**Aporte de cada dato al error total S = Σeᵢ².**
+
+![Contribución de errores](hyperframes-studio/results/images/17_3d_contribucion_errores.png)
+
+La versión **interactiva**, que se puede girar y tiene un explorador animado, está en
+`hyperframes-studio/results/html/modelos_3d.html`. Para verla hay que descargarla y abrirla en el
+navegador, porque GitHub no muestra archivos HTML.
+
 ## Dónde está cada parte del enunciado
 
 | Sección del enunciado | Documento / figura |
@@ -23,7 +55,7 @@ el modelo lineal que mejor representa un conjunto de datos?
 | §5 Exploración de datos | `docs/calculo_manual.md` §1–2, `01_dispersion.png` |
 | §6 Construcción del modelo | `docs/planteamiento.md` |
 | §7.1–7.4 Derivadas, ∇S = 0, solución, Hessiano (a mano) | `docs/calculo_manual.md`, `docs/desarrollo_matematico.md` |
-| §7.5–7.8 Superficie, trazas, curvas de nivel | `docs/interpretacion_geometrica.md`, figuras `03`–`05`, `results/html/modelos_3d.html` |
+| §7.5–7.8 Superficie, trazas, curvas de nivel | `docs/interpretacion_geometrica.md`, figuras `03`–`05` y `12`–`17` (3D), `results/html/modelos_3d.html` |
 | §8 Verificación computacional | `src/` y `docs/analisis_resultados.md` §8 |
 | §9 Tabla analítico / código propio / biblioteca | `docs/analisis_resultados.md` §9 |
 | §10–12 Recta, residuos, calidad | `docs/analisis_resultados.md`, figuras `02`, `06`, `07` |

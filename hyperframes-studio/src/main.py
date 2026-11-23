@@ -5,14 +5,16 @@ Regresión lineal por mínimos cuadrados con Cálculo Multivariable.
 
 Al ejecutar `python main.py` (o hacer clic / doble clic en él) se hace TODO:
 
-  1. Carga los datos (data/input/datos.csv)
-  2. Solución analítica (ecuaciones normales) + Hessiana + mínimo global
-  3. Descenso por gradiente con trayectoria completa
-  4. Métricas (R², MSE, RMSE, MAE, residuos)
+  1. Carga los datos REALES (data/input/datos.csv, fuente en FUENTE.md)
+  2. Solución analítica programada (ecuaciones normales) + Hessiano
+  3. Verificación numérica del Hessiano (autovalores, diferencias finitas)
+  4. Comparación  manual | código propio | biblioteca (§9)
+  5. Métodos numéricos: gradiente simple, gradiente centrado, Newton
+  6. Residuos, calidad del ajuste y análisis adicional (§11–13)
   5. LIMPIA results/ y genera TODAS las exportaciones:
-       results/images/  → 7 gráficas avanzadas (matplotlib, estilo científico)
-       results/html/    → dashboard + superficie 3D interactiva + mapas de
-                          calor animados + convergencia + informe imprimible
+       results/images/  → 11 gráficas (una por cada sección del enunciado)
+       results/html/    → dashboard + superficie 3D interactiva +
+                          convergencia + informe imprimible
        results/excel/   → resultados_experimentales.xlsx (4 hojas)
        results/data/    → parametros.json, predicciones.csv, residuos.csv
        results/video/   → explicacion_optimizacion.mp4 (animación del ajuste)
@@ -50,7 +52,10 @@ from derivadas import verificar_minimo, hessiana, gradiente as calc_gradiente
 from metricas import (imprimir_metricas, r_cuadrado, mse, rmse, mae,
                       analizar_pendiente)
 from modelo import prediccion, error_cuadratico
-from gradiente import descenso_gradiente, ajustar_eta, imprimir_resultado_gradiente
+from gradiente import (descenso_gradiente, ajustar_eta, imprimir_resultado_gradiente,
+                       metodo_newton)
+from datos import ETIQUETA_X, ETIQUETA_Y, PROBLEMA, FUENTE
+import analisis
 import graficas
 
 # ── Rutas ────────────────────────────────────────────────────────────────────
@@ -136,7 +141,7 @@ def exportar_data(x, y, r, h, g, res_metricas):
 
 
 # ═══════════ excel/ ═══════════════════
-def exportar_excel(x, y, r, h, g):
+def exportar_excel(x, y, r, h, g, comp=None):
     ruta = os.path.join(RESULTS, "excel", "resultados_experimentales.xlsx")
     wb = openpyxl.Workbook()
     enc = Font(bold=True, color="FFFFFF")
@@ -152,9 +157,9 @@ def exportar_excel(x, y, r, h, g):
 
     ws = wb.active
     ws.title = "Datos"
-    ws["A1"] = "Datos experimentales (x, y)"
+    ws["A1"] = f"Datos reales: {PROBLEMA}"
     ws["A1"].font = titulo
-    encabezado(ws, 3, ["i", "x", "y"])
+    encabezado(ws, 3, ["i", ETIQUETA_X, ETIQUETA_Y])
     for i, (xi, yi) in enumerate(zip(x, y), start=1):
         ws.cell(row=3 + i, column=1, value=i)
         ws.cell(row=3 + i, column=2, value=float(xi))
@@ -211,6 +216,17 @@ def exportar_excel(x, y, r, h, g):
     ws.cell(row=8, column=2, value="SÍ" if h["es_minimo"] else "NO")
     ws.column_dimensions["A"].width = 20
 
+    if comp is not None:
+        ws = wb.create_sheet("Comparación")
+        ws["A1"] = "Comparación analítico (manual) / código propio / biblioteca"
+        ws["A1"].font = titulo
+        encabezado(ws, 3, ["Parámetro", "Analítico", "Código propio", "Biblioteca", "Δ máx"])
+        for i, (nom, m, cod, lib, d3, _d2) in enumerate(comp["filas"], start=4):
+            for j, v in enumerate([nom, m, cod, lib, d3], start=1):
+                ws.cell(row=i, column=j, value=v)
+        for col in "ABCDE":
+            ws.column_dimensions[col].width = 18
+
     wb.save(ruta)
     return ruta
 
@@ -221,8 +237,9 @@ def exportar_html(x, y, r, h, g):
     a, b = r["a_star"], r["b_star"]
 
     # superficie_error.html — superficie 3D interactiva
-    A = np.linspace(a - 3, a + 3, 60)
-    B = np.linspace(b - 3, b + 3, 60)
+    (a0, a1), (b0, b1) = graficas.ventana(x, a, b, 6 * r["s_min"])
+    A = np.linspace(a0, a1, 70)
+    B = np.linspace(b0, b1, 70)
     AA, BB = np.meshgrid(A, B)
     S = np.array([[error_cuadratico(x, y, av, bv) for av in A] for bv in B])
 
@@ -246,32 +263,6 @@ def exportar_html(x, y, r, h, g):
         autosize=True,
     )
     fig.write_html(os.path.join(carpeta, "superficie_error.html"), include_plotlyjs="cdn")
-
-    # mapas_calor.html — heatmap animado
-    frames = []
-    for k in range(8):
-        ang = k * 45
-        Srot = np.roll(np.roll(S, k * 5, axis=0), k * 3, axis=1)
-        frames.append(go.Frame(data=[go.Heatmap(z=Srot, colorscale="Blues",
-                                                colorbar=dict(title="S"))],
-                               name=str(ang)))
-    fig = go.Figure(
-        data=[go.Heatmap(z=S, colorscale="Blues", colorbar=dict(title="S(a,b)"))],
-        frames=frames,
-    )
-    fig.update_layout(
-        template=PLANTILLA_PLOTLY,
-        title="Mapa de calor de S(a,b) — animación 360°",
-        updatemenus=[dict(
-            type="buttons", direction="left", x=0.5, y=-0.15,
-            buttons=[dict(label="> Girar", method="animate",
-                          args=[None, dict(frame=dict(duration=400, redraw=True),
-                                           fromcurrent=True, loop=True)]),
-                     dict(label="|| Pausar", method="animate",
-                          args=[[None], dict(mode="immediate", frame=dict(duration=0))])],
-        )],
-    )
-    fig.write_html(os.path.join(carpeta, "mapas_calor.html"), include_plotlyjs="cdn")
 
     # convergencia.html
     hist = g["historial"]
@@ -302,7 +293,7 @@ def exportar_html(x, y, r, h, g):
                              name=f"y = {a:.3f}x + {b:.3f}", line=dict(color="#d64545")))
     fig.update_layout(template=PLANTILLA_PLOTLY,
                       title="Ajuste por mínimos cuadrados",
-                      xaxis_title="x", yaxis_title="y")
+                      xaxis_title=ETIQUETA_X, yaxis_title=ETIQUETA_Y)
     fig.write_html(os.path.join(carpeta, "dashboard.html"),
                    include_plotlyjs="cdn", full_html=True)
 
@@ -349,9 +340,12 @@ tr:nth-child(even) td{{background:{AZUL_PASTEL}}}
 <p class="ecuacion">ŷ = {a:.4f}·x + ({b:.4f})</p>
 <h2>4. Conclusiones</h2>
 <ul>
+<li>Problema: {PROBLEMA}. Fuente: {FUENTE}.</li>
 <li>La Hessiana es definida positiva: (a*, b*) es el <b>mínimo global</b> de S.</li>
-<li>El descenso por gradiente converge al mismo punto desde (0, 0).</li>
-<li>La relación entre las variables es <b>{'positiva' if a > 0 else ('negativa' if a < 0 else 'débil')}</b>.</li>
+<li>Cada pulgada adicional de estatura se asocia con {a:.2f} lb más de peso promedio.</li>
+<li>Los residuos forman una U (positivos en los extremos, negativos en el centro):
+la relación es ligeramente curva y un modelo cuadrático la describe mejor.</li>
+<li>Ver docs/Conclusiones.md para el análisis completo.</li>
 </ul>
 <p><i>Generado automáticamente por main.py · Imprimir con Ctrl+P para obtener informe_completo.pdf</i></p>
 </body></html>"""
@@ -371,28 +365,29 @@ def crear_video(x, y, r, g, trayectoria, fps=12):
     ruta = os.path.join(carpeta, "explicacion_optimizacion.mp4")
     a, b = r["a_star"], r["b_star"]
 
-    tray = trayectoria if trayectoria and len(trayectoria) > 1 else [(0.0, 0.0), (a, b)]
+    tray = trayectoria if trayectoria and len(trayectoria) > 1 else [(0.0, 0.0, 0, 0, 0), (a, b, 0, 0, 1)]
     idx = np.linspace(0, len(tray) - 1, min(60, len(tray))).astype(int)
     tray_s = [tray[i] for i in idx]
 
-    A = np.linspace(min(a, 0) - 1, a + 2, 100)
-    B = np.linspace(min(b, 0) - 1, b + 2, 100)
+    A = np.linspace(-0.6, 4.3, 100)
+    B = np.linspace(-105, 15, 100)
     AA, BB = np.meshgrid(A, B)
     S = np.array([[error_cuadratico(x, y, av_, bv_) for av_ in A] for bv_ in B])
 
     frames = []
     xs = np.linspace(x.min(), x.max(), 50)
-    for k, (ak, bk, _, _) in enumerate(tray_s):
+    for k, (ak, bk, *_resto) in enumerate(tray_s):
         fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
 
         ax1.scatter(x, y, color=AZUL, s=50, zorder=3, label="Datos")
+        ax1.set_ylim(y.min() - 15, y.max() + 15)
         ax1.plot(xs, prediccion(xs, ak, bk), color="#d64545", lw=2,
-                 label=f"iter {idx[k]}: y={ak:.2f}x+{bk:.2f}")
-        ax1.set_title(f"Ajuste por gradiente — iteración {idx[k]}")
-        ax1.set_xlabel("x"); ax1.set_ylabel("y"); ax1.legend(loc="lower right")
+                 label=f"iter {tray_s[k][4]}: y={ak:.3f}x{bk:+.2f}")
+        ax1.set_title(f"Ajuste por gradiente (x centrada) — iteración {tray_s[k][4]}")
+        ax1.set_xlabel(ETIQUETA_X); ax1.set_ylabel(ETIQUETA_Y); ax1.legend(loc="upper left")
         ax1.grid(True)
 
-        ax2.contourf(AA, BB, S, levels=25, cmap="Blues")
+        ax2.contourf(AA, BB, np.log10(S), levels=25, cmap="Blues_r")
         ax2.plot([p[0] for p in tray_s[:k+1]], [p[1] for p in tray_s[:k+1]],
                  "-o", color="#d64545", markersize=3, lw=1.5, label="trayectoria")
         ax2.plot(a, b, "*", color=AZUL, markersize=18, label="mínimo global")
@@ -484,23 +479,35 @@ def main(mostrar_graficas: bool = True) -> None:
     a_star, b_star = r["a_star"], r["b_star"]
     h = verificar_minimo(x)
 
-    # ── 5. Descenso por gradiente ───────────────────────────────────────
-    eta = ajustar_eta(x)
-    print(f"\n• Tasa de aprendizaje sugerida: η = {eta:.8f}")
-    res_grad = descenso_gradiente(x, y, a_init=0.0, b_init=0.0, eta=eta)
-    imprimir_resultado_gradiente(res_grad)
+    # ── 3. Hessiano: verificación numérica (§8.6–8.7) ───────────────────
+    hv = analisis.verificar_hessiano_numerico(x, y, a_star, b_star)
+    analisis.imprimir_hessiano_numerico(hv)
 
-    print("\n• Comparación:")
-    print(f"  Analítico  : a* = {a_star:.6f},  b* = {b_star:.6f}")
-    print(f"  Gradiente  : a* = {res_grad['a_star']:.6f},  b* = {res_grad['b_star']:.6f}")
-    diff_a = abs(a_star - res_grad["a_star"])
-    diff_b = abs(b_star - res_grad["b_star"])
-    print(f"  Diferencia : |Δa| = {diff_a:.2e},  |Δb| = {diff_b:.2e}")
-    if diff_a < 1e-3 and diff_b < 1e-3:
-        print("  ✓ Ambos métodos coinciden: el mínimo global fue encontrado.")
+    # ── 4. Comparación manual / código propio / biblioteca (§9) ─────────
+    comp = analisis.comparar_metodos(x, y)
+    analisis.imprimir_comparacion(comp)
 
-    # ── 6. Métricas ─────────────────────────────────────────────────────
+    # ── 5. Métodos numéricos (complemento) ──────────────────────────────
+    gd_simple = descenso_gradiente(x, y, max_iter=200_000)
+    imprimir_resultado_gradiente(gd_simple, "DESCENSO POR GRADIENTE SIMPLE en (a, b)")
+    gd_centrado = descenso_gradiente(x, y, centrar=True, max_iter=200_000)
+    imprimir_resultado_gradiente(gd_centrado, "DESCENSO POR GRADIENTE con x centrada")
+    newton = metodo_newton(x, y)
+    print(f"\n• Método de Newton (1 paso desde (0,0)): a = {newton['a_star']:.10f}, "
+          f"b = {newton['b_star']:.10f}, ‖∇S‖ = {newton['norma_final']:.1e}")
+    print(f"  El gradiente simple se detuvo en ({gd_simple['a_star']:.3f}, {gd_simple['b_star']:.2f}) "
+          f"tras {gd_simple['iteraciones']} iteraciones: κ(H) = {hv['condicion']:.1e}.")
+    res_grad = gd_centrado
+
+    # ── 6. Residuos, calidad y análisis adicional (§11–13) ──────────────
     res_metricas = imprimir_metricas(x, y, a_star, b_star)
+    resid = analisis.analizar_residuos(x, y, a_star, b_star)
+    calidad = analisis.calidad_ajuste(x, y, a_star, b_star)
+    analisis.imprimir_residuos_calidad(resid, calidad)
+    inf = analisis.influencia_datos(x, y)
+    cq = analisis.comparar_cuadratico(x, y)
+    sen = analisis.sensibilidad(x, y)
+    analisis.imprimir_adicional(inf, cq, sen)
 
     # ── 7. REINICIAR results/ y generar TODAS las exportaciones ─────────
     print("\n" + "═" * 55)
@@ -511,11 +518,9 @@ def main(mostrar_graficas: bool = True) -> None:
         os.makedirs(os.path.join(RESULTS, sub), exist_ok=True)
 
     # 7a. Gráficas avanzadas → results/images/
-    print("\n• Gráficas avanzadas (7 PNG, estilo científico):")
-    graficas.generar_todas(x, y, a_star, b_star,
-                           historial=res_grad["historial"],
-                           trayectoria=res_grad["trayectoria"],
-                           a_init=0.0, b_init=0.0)
+    print("\n• Gráficas (11 PNG, una por sección del enunciado):")
+    graficas.generar_todas(x, y, a_star, b_star, resid, gd_simple, gd_centrado,
+                           newton, inf, cq)
     print(f"   -> {os.path.join(RESULTS, 'images')}")
 
     # 7b. Dashboards interactivos + informe → results/html/
@@ -525,7 +530,7 @@ def main(mostrar_graficas: bool = True) -> None:
 
     # 7c. Excel → results/excel/
     print("\n• Excel (openpyxl, 4 hojas):")
-    ruta_excel = exportar_excel(x, y, r, h, res_grad)
+    ruta_excel = exportar_excel(x, y, r, h, res_grad, comp)
     print(f"   -> {ruta_excel}")
 
     # 7d. Datos crudos → results/data/
@@ -546,16 +551,16 @@ def main(mostrar_graficas: bool = True) -> None:
     print("  CONCLUSIÓN")
     print("═" * 60)
     print(f"""
+  Problema: {PROBLEMA}
   La recta óptima  ŷ = {a_star:.4f}·x + ({b_star:.4f})  minimiza el error
-  cuadrático total  S(a*, b*) = {r['s_min']:.4f}.
+  cuadrático total  S(a*, b*) = {r['s_min']:.4f} lb²  (R² = {calidad['R2']:.4f},
+  RMSE = {calidad['RMSE']:.3f} lb).
 
-  La matriz Hessiana es definida positiva (det(H) > 0 con al menos dos
-  valores de x diferentes), por lo que (a*, b*) es un MÍNIMO GLOBAL de S.
-
-  El descenso por gradiente llegó al mismo punto desde (0, 0),
-  confirmando numéricamente el resultado analítico.
-
-  TODO se generó en results/ y data/generated/ ejecutando SOLO main.py.
+  • Hessiano definido positivo (λ₁, λ₂ > 0) ⇒ (a*, b*) es el MÍNIMO GLOBAL.
+  • Manual, código propio y biblioteca coinciden (diferencias de redondeo).
+  • Los residuos forman una U ⇒ la relación real es levemente curva; el modelo
+    cuadrático reduce S de {cq['S_lineal']:.2f} a {cq['S_cuad']:.2f}, aunque sus
+    predicciones difieren a lo sumo {cq['max_dif_pred']:.2f} lb.
 """)
     print("═" * 60)
 

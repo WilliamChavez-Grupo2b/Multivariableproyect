@@ -59,6 +59,7 @@ import analisis
 import graficas
 import graficas_3d
 import modelos_3d
+import presentacion
 
 # ── Rutas ────────────────────────────────────────────────────────────────────
 RAIZ = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
@@ -540,6 +541,7 @@ def main(mostrar_graficas: bool = True) -> None:
     ruta_3d = modelos_3d.generar_modelos_3d(x, y, a_star, b_star, gd_simple, gd_centrado,
                                             newton, hv, calidad)
     print(f"   -> modelos 3D interactivos: {ruta_3d}")
+    print(f"   -> presentación interactiva: {presentacion.construir()}")
     print(f"   -> {os.path.join(RESULTS, 'html')}")
 
     # 7c. Excel → results/excel/

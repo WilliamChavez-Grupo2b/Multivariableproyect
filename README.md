@@ -10,6 +10,13 @@ el modelo lineal que mejor representa un conjunto de datos?
 
 ## Para la sustentación
 
+- 🎤 **Presentación interactiva:** `hyperframes-studio/results/html/presentacion.html`. Hay que
+  descargarla y abrirla en el navegador; funciona sin internet. Tiene 24 diapositivas organizadas
+  según los criterios de evaluación (cada una indica qué criterio cubre), la solución paso a paso,
+  superficies 3D que se pueden girar, un explorador con deslizadores, notas para el expositor
+  (tecla **N**) y práctica de preguntas con una pregunta aleatoria. Teclas: ← → para avanzar,
+  **I** para el índice y **F** para pantalla completa. Para poner sus nombres, editen
+  `INTEGRANTES` en `src/presentacion.py` y ejecuten `python src/presentacion.py`.
 - 🧊 **Modelos 3D interactivos:** abrir `hyperframes-studio/results/html/modelos_3d.html` en el
   navegador (funciona sin internet). Superficie con trazas y curvas de nivel, el "tazón" con x
   centrada, un **explorador** que mueve la recta y su punto sobre la superficie, y los métodos

@@ -14,7 +14,7 @@ Validaciones aplicadas (carga y validación de datos):
   • el archivo existe
   • encabezados correctos (columnas "x" e "y")
   • todos los valores son numéricos y finitos
-  • al menos 2 observaciones
+  • al menos 3 observaciones
   • no todos los x son iguales (si no, la pendiente no es única)
 """
 
@@ -75,8 +75,10 @@ def validar_datos(x: np.ndarray, y: np.ndarray) -> None:
     """Valida las condiciones matemáticas del problema."""
     if len(x) != len(y):
         raise ValueError("X e Y deben tener la misma cantidad de elementos.")
-    if len(x) < 2:
-        raise ValueError("Se necesitan al menos 2 observaciones.")
+    # Con n = 2 la recta pasa exacto por ambos puntos (S = 0) y el error
+    # estándar s = √(S/(n−2)) del análisis de residuos no está definido.
+    if len(x) < 3:
+        raise ValueError("Se necesitan al menos 3 observaciones.")
     if np.all(x == x[0]):
         raise ValueError(
             "Todos los valores de x son iguales: la pendiente y el intercepto "

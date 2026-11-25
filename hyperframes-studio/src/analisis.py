@@ -12,12 +12,14 @@ Análisis que pide el enunciado además del ajuste:
          B — influencia de cada dato (se elimina uno y se reajusta)
          C — comparación con el modelo cuadrático y = a·x² + b·x + c
          A — sensibilidad: se perturba cada y_i en ±1 lb
+         D — efecto del número de datos (subconjuntos de m = 3..n)
 """
 
 import numpy as np
 
 from analitico import resolver_analitico
 from derivadas import hessiana
+from metricas import r_cuadrado
 from modelo import error_cuadratico, prediccion
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -42,7 +44,11 @@ def comparar_metodos(x, y, manual=MANUAL) -> dict:
 
     lib = {"polyfit": (float(a_np), float(b_np), float(S_np))}
 
-    # Biblioteca 2: scipy.stats.linregress (si está instalada)
+    # Biblioteca 2: numpy.linalg.lstsq sobre la matriz de diseño [x 1]
+    (a_ls, b_ls), *_ = np.linalg.lstsq(np.column_stack([x, np.ones_like(x)]), y, rcond=None)
+    lib["lstsq"] = (float(a_ls), float(b_ls), error_cuadratico(x, y, a_ls, b_ls))
+
+    # Biblioteca 3: scipy.stats.linregress (si está instalada)
     try:
         from scipy import stats
         r = stats.linregress(x, y)
@@ -147,6 +153,10 @@ def _rachas(signos):
 
 
 def analizar_residuos(x, y, a, b) -> dict:
+    # Rachas, mitades y tercios solo tienen sentido con los x ORDENADOS;
+    # el CSV puede venir en cualquier orden.
+    orden = np.argsort(x, kind="stable")
+    x, y = np.asarray(x, float)[orden], np.asarray(y, float)[orden]
     e = y - prediccion(x, a, b)
     n = len(e)
     s = float(np.sqrt(np.sum(e ** 2) / (n - 2)))           # error estándar de la regresión
@@ -194,7 +204,7 @@ def calidad_ajuste(x, y, a, b) -> dict:
     rmse = float(np.sqrt(ss_res / n))
     return {
         "SS_res": ss_res, "SS_tot": ss_tot,
-        "R2": 1 - ss_res / ss_tot,
+        "R2": r_cuadrado(y, yh),
         "RMSE": rmse,
         "MAE": float(np.mean(np.abs(e))),
         "rango_y": float(y.max() - y.min()),
@@ -264,12 +274,15 @@ def ajuste_cuadratico_propio(x, y) -> np.ndarray:
 
 
 def comparar_cuadratico(x, y) -> dict:
+    n = len(x)
+    # 3 parámetros + la prueba F usa n − 3 grados de libertad → n ≥ 4
+    if n < 4 or len(np.unique(x)) < 3:
+        raise ValueError("El modelo cuadrático necesita n ≥ 4 y al menos 3 valores de x distintos.")
     a, b = resolver_analitico(x, y)
     p, q, r = ajuste_cuadratico_propio(x, y)
     p_np, q_np, r_np = np.polyfit(x, y, 2)
     yl = prediccion(x, a, b)
     yc = p * x**2 + q * x + r
-    n = len(x)
     S_l = float(np.sum((y - yl) ** 2))
     S_c = float(np.sum((y - yc) ** 2))
     ss_tot = float(np.sum((y - y.mean()) ** 2))
@@ -334,4 +347,40 @@ def imprimir_adicional(inf: dict, cq: dict, sen: dict, ux="in", uy="lb") -> None
     print(f"  |Δa| máx = {np.max(np.abs(sen['da'])):.4f} {uy}/{ux}   |Δb| máx = {np.max(np.abs(sen['db'])):.4f} {uy}")
     print("  Δa es lineal en Δy (a* = Σ w_i·y_i): los puntos de los EXTREMOS pesan más,")
     print("  los del centro casi nada → la pendiente es poco sensible a un error de 1 lb.")
+    print("═" * 72)
+
+
+def efecto_n(x, y, repeticiones=200, semilla=0) -> dict:
+    """
+    Opción D: reajusta con m = 3..n datos y mide cómo cambian a*, b*.
+
+    Para cada m se toman `repeticiones` subconjuntos aleatorios de m puntos
+    (semilla fija → reproducible) y se reporta la media y la desviación de a*, b*.
+    La desviación debe bajar a medida que m crece.
+    """
+    x = np.asarray(x, float); y = np.asarray(y, float)
+    rng = np.random.default_rng(semilla)
+    filas = []
+    for m in range(3, len(x) + 1):
+        a_s, b_s = [], []
+        for _ in range(repeticiones):
+            idx = rng.choice(len(x), size=m, replace=False)
+            if np.ptp(x[idx]) == 0:
+                continue    # todos los x iguales: no hay recta única
+            a_i, b_i = resolver_analitico(x[idx], y[idx])
+            a_s.append(a_i); b_s.append(b_i)
+        filas.append({"m": m, "a_media": float(np.mean(a_s)), "a_desv": float(np.std(a_s)),
+                      "b_media": float(np.mean(b_s)), "b_desv": float(np.std(b_s))})
+    return {"filas": filas, "repeticiones": repeticiones}
+
+
+def imprimir_efecto_n(d: dict, ux="in", uy="lb") -> None:
+    print("\n" + "═" * 72)
+    print(f"  §13-D  EFECTO DEL NÚMERO DE DATOS ({d['repeticiones']} subconjuntos aleatorios por m)")
+    print("═" * 72)
+    print(f"  {'m':>3} {'a* medio':>10} {'desv a*':>9} {'b* medio':>10} {'desv b*':>9}")
+    for f in d["filas"]:
+        print(f"  {f['m']:>3} {f['a_media']:>10.4f} {f['a_desv']:>9.4f} "
+              f"{f['b_media']:>10.3f} {f['b_desv']:>9.3f}")
+    print("  → Con más datos la dispersión de a* y b* disminuye: el ajuste se estabiliza.")
     print("═" * 72)

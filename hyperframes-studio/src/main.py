@@ -43,8 +43,6 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
 
 import plotly.graph_objects as go
-import openpyxl
-from openpyxl.styles import Font, PatternFill, Alignment
 
 from datos import obtener_datos, resumen
 from analitico import main_analitico, reporte_analitico
@@ -145,6 +143,13 @@ def exportar_data(x, y, r, h, g, res_metricas):
 
 # ═══════════ excel/ ═══════════════════
 def exportar_excel(x, y, r, h, g, comp=None):
+    # openpyxl es opcional: sin él se omite el Excel y el resto del análisis sigue
+    try:
+        import openpyxl
+        from openpyxl.styles import Font, PatternFill, Alignment
+    except ImportError:
+        print("  [!] Excel omitido: instala con  python -m pip install openpyxl")
+        return None
     ruta = os.path.join(RESULTS, "excel", "resultados_experimentales.xlsx")
     wb = openpyxl.Workbook()
     enc = Font(bold=True, color="FFFFFF")
@@ -519,6 +524,7 @@ def main(mostrar_graficas: bool = True) -> None:
     cq = analisis.comparar_cuadratico(x, y)
     sen = analisis.sensibilidad(x, y)
     analisis.imprimir_adicional(inf, cq, sen)
+    analisis.imprimir_efecto_n(analisis.efecto_n(x, y))
 
     # ── 7. REINICIAR results/ y generar TODAS las exportaciones ─────────
     print("\n" + "═" * 55)

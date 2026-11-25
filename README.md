@@ -8,6 +8,21 @@ el modelo lineal que mejor representa un conjunto de datos?
 
 **Resultado:** ŷ = 3.45·x − 87.5167, S_mín = 30.2333 lb², R² = 0.991, RMSE = 1.42 lb.
 
+## App interactiva (`results/html/app.html`)
+
+Un solo archivo que funciona **sin internet**: hay que descargarlo y abrirlo con doble clic. Tiene 9 vistas
+enlazadas: 1 Datos editables (CSV, excluir puntos), 2 Desarrollo analítico paso a paso con los valores
+manuales, 3 Explorador (controles a y b junto con las curvas de nivel), 4 Superficie 3D (planos de corte,
+trazas, valle, descenso por gradiente, escala log, x centrada, cámaras), 5 Trazas, 6 Hessiano,
+7 Residuos, 8 Tabla §9 y 9 Análisis adicional A–D.
+
+Python calcula los resultados oficiales; el navegador recalcula con las mismas fórmulas
+(`web/regresion.js`). La insignia verde confirma que ambos coinciden. Para regenerarla:
+`python src/app_html.py` (o `python src/main.py`).
+
+Explicación completa de la app (variables, ecuaciones, métodos y las cuatro gráficas 3D):
+[`docs/guia_app.md`](hyperframes-studio/docs/guia_app.md).
+
 ## Para la sustentación
 
 - 🎤 **Presentación interactiva:** `hyperframes-studio/results/html/presentacion.html`. Hay que

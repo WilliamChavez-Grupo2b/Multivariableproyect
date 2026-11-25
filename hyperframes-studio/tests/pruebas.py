@@ -290,6 +290,54 @@ def t_efecto_n():
     assert abs(filas[-1]["a_media"] - a) < 1e-9 and filas[-1]["a_desv"] < 1e-9
     assert filas[0]["a_desv"] > filas[-2]["a_desv"], "La dispersión debe bajar al crecer m"
 
+# ── 13. app.html (RD-04: paridad Python ↔ navegador) ────────────────────────
+def t_paridad_js():
+    import shutil, subprocess
+    if shutil.which("node") is None:
+        print("     (omitida: node no está instalado)")
+        return
+    js = os.path.join(RAIZ, "web", "regresion.js")
+    # regresion.js es un script de navegador: se carga con new Function y module falso
+    codigo = (
+        "const fs=require('fs');const m={exports:{}};"
+        "new Function('module',fs.readFileSync(process.argv[1],'utf8'))(m);const R=m.exports;"
+        "const d=JSON.parse(fs.readFileSync(0,'utf8'));const aj=R.ajuste(d.x,d.y);"
+        "const r=R.residuos(d.x,d.y,aj.a,aj.b),c=R.cuadratico(d.x,d.y),e=R.eig2(R.hessiano(aj.s));"
+        "console.log(JSON.stringify({a:aj.a,b:aj.b,S:R.S(d.x,d.y,aj.a,aj.b),l:[e.l1,e.l2],"
+        "R2:R.calidad(d.x,d.y,aj.a,aj.b).R2,rachas:r.rachas,corr:r.corr,cuad:[c.p,c.q,c.r],F:c.F,"
+        "influ:R.influencia(d.x,d.y).map(f=>f.da)}))"
+    )
+    x, y = obtener_datos()
+    p = np.random.default_rng(3).permutation(len(x))      # orden distinto al de Python
+    salida = subprocess.run(["node", "-e", codigo, js], input=json.dumps({"x": x[p].tolist(), "y": y[p].tolist()}),
+                            capture_output=True, text=True, check=True).stdout
+    j = json.loads(salida)
+    a, b = resolver_analitico(x, y)
+    v = analisis.verificar_hessiano_numerico(x, y, a, b)
+    res = analisis.analizar_residuos(x, y, a, b)
+    cq = analisis.comparar_cuadratico(x, y)
+    inf = analisis.influencia_datos(x, y)
+    assert abs(j["a"] - a) < 1e-9 and abs(j["b"] - b) < 1e-7
+    assert abs(j["S"] - error_cuadratico(x, y, a, b)) < 1e-8
+    assert np.allclose(j["l"], v["autovalores"], rtol=1e-9)
+    assert abs(j["R2"] - analisis.calidad_ajuste(x, y, a, b)["R2"]) < 1e-12
+    assert j["rachas"] == res["rachas"] and abs(j["corr"] - res["corr_curvatura"]) < 1e-9
+    assert np.allclose(j["cuad"], cq["cuadratico"], rtol=1e-6) and abs(j["F"] - cq["F"]) < 1e-4 * cq["F"]
+    # influencia: Python recorre los datos en orden original, node en orden permutado
+    assert np.allclose(sorted(j["influ"]), sorted(f["da"] for f in inf["filas"]), atol=1e-9)
+
+def t_app_html():
+    import app_html
+    with tempfile.TemporaryDirectory() as tmp:
+        ruta = app_html.construir(os.path.join(tmp, "app.html"))
+        html = open(ruta, encoding="utf-8").read()
+    for marcador in ("/*DATOS*/", "/*PLOTLY*/", "/*REGRESION*/", "/*APP*/"):
+        assert marcador not in html, f"Quedó sin reemplazar {marcador}"
+    assert "cdn" not in html.split("<script id=\"datos-app\"")[0].lower(), "El HTML no debe depender de un CDN"
+    assert len(html) < 8e6, f"app.html pesa {len(html)/1e6:.1f} MB (límite RD-05: 8 MB)"
+    datos = json.loads(html.split('<script id="datos-app" type="application/json">')[1].split("</script>")[0])
+    assert abs(datos["python"]["a"] - resolver_analitico(*obtener_datos())[0]) < 1e-12
+
 
 if __name__ == "__main__":
     print("\n═══════ PRUEBAS AUTOMÁTICAS ═══════\n")
@@ -320,6 +368,8 @@ if __name__ == "__main__":
     prueba("12c. numpy.linalg.lstsq = código propio", t_lstsq_en_bibliotecas)
     prueba("12d. Cuadrático rechaza n < 4", t_cuadratico_rechaza_n_pequeno)
     prueba("12e. Opción D: efecto del número de datos", t_efecto_n)
+    prueba("13. Paridad Python ↔ JS (regresion.js con node)", t_paridad_js)
+    prueba("13b. app.html autocontenido y con datos de Python", t_app_html)
 
     ok = sum(1 for _, ok, _ in resultados if ok)
     print(f"\n═══════ RESULTADO: {ok}/{len(resultados)} pruebas pasaron ═══════\n")

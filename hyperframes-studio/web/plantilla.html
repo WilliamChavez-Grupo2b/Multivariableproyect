@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Regresión por optimización</title>
+<style>
+:root {
+  --bg: #f6f7f9; --panel: #ffffff; --fg: #17212b; --muted: #5a6b7d; --line: #d9e0e8; --grid: #e6ebf0;
+  --acento: #1f5fa8; --opt: #c92a2a; --usr: #1c64d1; --pos: #12806f; --neg: #c2410c; --dato: #2f3b47;
+  --ok: #1b7f3b; --mal: #b42318; --campo: #f0f3f7;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1318; --panel: #161e26; --fg: #e6edf3; --muted: #98a6b3; --line: #2a3541; --grid: #222c36;
+    --acento: #7fb2e5; --opt: #ff6b6b; --usr: #6aa8ff; --pos: #4fd1c5; --neg: #f4a261; --dato: #d3dbe4;
+    --ok: #4ade80; --mal: #f87171; --campo: #1d2731;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e1318; --panel: #161e26; --fg: #e6edf3; --muted: #98a6b3; --line: #2a3541; --grid: #222c36;
+  --acento: #7fb2e5; --opt: #ff6b6b; --usr: #6aa8ff; --pos: #4fd1c5; --neg: #f4a261; --dato: #d3dbe4;
+  --ok: #4ade80; --mal: #f87171; --campo: #1d2731;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--fg); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+header { padding: 16px 24px 8px; display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
+header h1 { font-size: 1.25rem; margin: 0; }
+header .sub { color: var(--muted); font-size: .9rem; flex-basis: 100%; }
+.insignia { font-size: .8rem; padding: 2px 10px; border-radius: 999px; border: 1px solid var(--line); }
+.insignia.ok { color: var(--ok); border-color: var(--ok); }
+.insignia.mal { color: var(--mal); border-color: var(--mal); }
+header .derecha { margin-left: auto; display: flex; gap: 8px; }
+nav { display: flex; gap: 4px; overflow-x: auto; padding: 0 24px; border-bottom: 1px solid var(--line); }
+nav button { background: none; border: 0; border-bottom: 3px solid transparent; color: var(--muted); padding: 10px 12px; font: inherit; cursor: pointer; white-space: nowrap; }
+nav button[aria-selected="true"] { color: var(--fg); border-bottom-color: var(--acento); font-weight: 600; }
+main { padding: 16px 24px 48px; max-width: 1500px; margin: 0 auto; }
+section[role="tabpanel"] > h2 { font-size: 1.1rem; margin: 4px 0 12px; }
+.tarjeta { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin-bottom: 16px; min-width: 0; }
+.tarjeta h3 { font-size: .95rem; margin: 0 0 8px; }
+.duo { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.trio { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.graf { width: 100%; height: 400px; }
+.graf.alto { height: 620px; }
+.graf.bajo { height: 320px; }
+.nota { color: var(--muted); font-size: .88rem; }
+.error { background: color-mix(in srgb, var(--mal) 12%, transparent); color: var(--mal); border: 1px solid var(--mal); border-radius: 8px; padding: 8px 12px; margin-bottom: 12px; }
+.controles { display: grid; grid-template-columns: auto 1fr 9rem; gap: 6px 12px; align-items: center; }
+.controles label { font-weight: 600; }
+.barra { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; margin-bottom: 12px; }
+input[type="range"] { width: 100%; accent-color: var(--usr); }
+input[type="number"], input[type="text"] { background: var(--campo); color: var(--fg); border: 1px solid var(--line); border-radius: 6px; padding: 4px 8px; font: inherit; width: 100%; }
+button.btn { background: var(--campo); color: var(--fg); border: 1px solid var(--line); border-radius: 6px; padding: 5px 12px; font: inherit; cursor: pointer; }
+button.btn:hover { border-color: var(--acento); }
+:focus-visible { outline: 2px solid var(--acento); outline-offset: 2px; }
+table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+th, td { border-bottom: 1px solid var(--line); padding: 4px 8px; text-align: right; }
+th { color: var(--muted); font-weight: 600; }
+td:first-child, th:first-child { text-align: left; }
+.tabla-scroll { overflow-x: auto; max-height: 460px; }
+.tabla-datos input[type="number"] { width: 7rem; }
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+.kpi { background: var(--campo); border-radius: 8px; padding: 8px 12px; }
+.kpi b { display: block; font-size: 1.15rem; font-variant-numeric: tabular-nums; }
+.kpi span { color: var(--muted); font-size: .82rem; }
+.medidor { height: 8px; border-radius: 4px; background: var(--campo); overflow: hidden; margin-top: 6px; }
+.medidor div { height: 100%; background: var(--usr); width: 0; transition: width .15s; }
+.formula { font-family: "Cambria Math", "STIX Two Math", Georgia, serif; font-size: 1.02rem; line-height: 1.9; overflow-x: auto; }
+.formula .paso { padding: 2px 0 2px 12px; border-left: 3px solid var(--line); margin: 6px 0; }
+.si { color: var(--ok); font-weight: 600; } .no { color: var(--mal); font-weight: 600; }
+.leyenda { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; }
+@media (max-width: 1023px) {
+  .duo, .trio { grid-template-columns: 1fr; }
+  .graf.alto { height: 480px; }
+}
+@media (max-width: 600px) {
+  header, nav, main { padding-left: 16px; padding-right: 16px; }
+  .controles { grid-template-columns: auto 1fr; }
+  .controles input[type="number"] { grid-column: 2; }
+  .graf { height: 340px; }
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>Regresión lineal como optimización de S(a, b)</h1>
+  <span id="paridad" class="insignia">Verificando…</span>
+  <div class="derecha">
+    <button class="btn" id="tema" type="button" aria-label="Cambiar tema claro u oscuro">◐ Tema</button>
+  </div>
+  <div class="sub" id="subtitulo"></div>
+</header>
+
+<nav role="tablist" aria-label="Vistas">
+  <button role="tab" data-tab="datos">1 · Datos</button>
+  <button role="tab" data-tab="analitico">2 · Analítico</button>
+  <button role="tab" data-tab="explorador">3 · Explorador</button>
+  <button role="tab" data-tab="superficie">4 · Superficie 3D</button>
+  <button role="tab" data-tab="trazas">5 · Trazas</button>
+  <button role="tab" data-tab="hessiano">6 · Hessiano</button>
+  <button role="tab" data-tab="residuos">7 · Residuos</button>
+  <button role="tab" data-tab="comparacion">8 · Comparación</button>
+  <button role="tab" data-tab="adicional">9 · Análisis adicional</button>
+</nav>
+
+<main>
+  <div id="error" class="error" role="alert" hidden></div>
+
+  <!-- Controles (a, b) compartidos por las vistas 3, 4 y 5 (RD-12) -->
+  <div id="panelAB" class="tarjeta" hidden>
+    <div class="controles">
+      <label for="rangoA">a</label><input type="range" id="rangoA"><input type="number" id="numA" step="any" aria-label="Valor exacto de a">
+      <label for="rangoB" id="etqB">b</label><input type="range" id="rangoB"><input type="number" id="numB" step="any" aria-label="Valor exacto de b">
+    </div>
+    <div class="barra" style="margin:10px 0 0">
+      <span id="indicador" aria-live="polite"></span>
+      <button class="btn" id="irOptimo" type="button">Ir al óptimo (a*, b*)</button>
+      <button class="btn" id="irInicio" type="button">Recta de prueba</button>
+    </div>
+    <div class="medidor" aria-hidden="true"><div id="medidor"></div></div>
+  </div>
+
+  <section role="tabpanel" id="datos">
+    <h2>Datos del problema</h2>
+    <div class="duo">
+      <div class="tarjeta">
+        <div class="barra">
+          <button class="btn" id="agregarFila" type="button">+ Fila</button>
+          <label class="btn" for="archivoCSV" style="cursor:pointer">Cargar CSV (x,y)</label>
+          <input type="file" id="archivoCSV" accept=".csv,text/csv" hidden>
+          <button class="btn" id="descargarDatos" type="button">Descargar CSV</button>
+          <button class="btn" id="restablecer" type="button">Restablecer datos originales</button>
+        </div>
+        <div class="tabla-scroll"><table class="tabla-datos" id="tablaDatos"></table></div>
+        <p class="nota">Edita valores, desmarca "activo" para excluir un punto (opción B) o carga otro CSV. Todas las vistas se recalculan.</p>
+      </div>
+      <div class="tarjeta">
+        <div id="gDispersion" class="graf"></div>
+        <div class="kpis" id="kpisDatos"></div>
+      </div>
+    </div>
+  </section>
+
+  <section role="tabpanel" id="analitico">
+    <h2>Procedimiento analítico (§7.1–7.4) con los datos actuales</h2>
+    <div class="duo">
+      <div class="tarjeta formula" id="desarrollo"></div>
+      <div>
+        <div class="tarjeta">
+          <h3>Resultados obtenidos a mano</h3>
+          <p class="nota">Escribe los valores de tu cuaderno; se comparan con el código en la vista 8.</p>
+          <div class="controles" style="grid-template-columns:auto 1fr">
+            <label for="manA">a_man</label><input type="number" id="manA" step="any">
+            <label for="manB">b_man</label><input type="number" id="manB" step="any">
+            <label for="manS">S_man</label><input type="number" id="manS" step="any">
+          </div>
+          <div id="difManual" class="nota" style="margin-top:8px"></div>
+        </div>
+        <div class="tarjeta formula" id="hessResumen"></div>
+      </div>
+    </div>
+  </section>
+
+  <section role="tabpanel" id="explorador">
+    <h2>Explorador: cada recta es un punto (a, b) de S</h2>
+    <div class="duo">
+      <div class="tarjeta"><div id="gRecta" class="graf"></div></div>
+      <div class="tarjeta"><div id="gContorno" class="graf"></div>
+        <p class="nota">Haz clic sobre las curvas de nivel para mover (a, b). La estrella es (a*, b*); las elipses son muy alargadas porque κ(H) es grande.</p></div>
+    </div>
+  </section>
+
+  <section role="tabpanel" id="superficie">
+    <h2>Superficie de error z = S(a, b) (§7.5–7.8)</h2>
+    <div class="tarjeta">
+      <div class="barra">
+        <label><input type="checkbox" id="optLog" checked> Eje z en log₁₀</label>
+        <label><input type="checkbox" id="optCentrado"> Variables centradas (a, c), u = x − x̄</label>
+        <label for="optZoom">Zoom del rango</label><input type="range" id="optZoom" min="0.2" max="3" step="0.1" value="1" style="width:140px">
+        <span class="nota">Cámara:</span>
+        <button class="btn" data-cam="iso" type="button">Isométrica</button>
+        <button class="btn" data-cam="arriba" type="button">Desde arriba</button>
+        <button class="btn" data-cam="a" type="button">Frente a a</button>
+        <button class="btn" data-cam="b" type="button">Frente a b</button>
+      </div>
+      <div id="g3d" class="graf alto"></div>
+      <p class="nota" id="nota3d">Activa u oculta capas desde la leyenda: planos de corte, trazas, valle y descenso por gradiente.</p>
+    </div>
+  </section>
+
+  <section role="tabpanel" id="trazas">
+    <h2>Trazas y secciones transversales (§7.7)</h2>
+    <div class="duo">
+      <div class="tarjeta"><div id="gTrazaA" class="graf"></div><p class="nota" id="notaTrazaA"></p></div>
+      <div class="tarjeta"><div id="gTrazaB" class="graf"></div><p class="nota" id="notaTrazaB"></p></div>
+    </div>
+  </section>
+
+  <section role="tabpanel" id="hessiano">
+    <h2>Hessiano y naturaleza del punto crítico (§7.4, §8.6–8.7)</h2>
+    <div class="duo">
+      <div class="tarjeta" id="hessTabla"></div>
+      <div class="tarjeta"><div id="gEigen" class="graf"></div>
+        <p class="nota">Los vectores propios de H son los ejes de las elipses. Las escalas de a y b son distintas, por eso no se ven perpendiculares.</p></div>
+    </div>
+  </section>
+
+  <section role="tabpanel" id="residuos">
+    <h2>Residuos y calidad del ajuste (§10–12)</h2>
+    <div class="kpis tarjeta" id="kpisResiduos"></div>
+    <div class="duo">
+      <div class="tarjeta"><div id="gResiduos" class="graf"></div></div>
+      <div class="tarjeta"><div id="gHistograma" class="graf"></div></div>
+    </div>
+    <div class="duo">
+      <div class="tarjeta" id="interpretacion"></div>
+      <div class="tarjeta">
+        <div class="barra"><h3 style="margin:0">Tabla de residuos</h3><button class="btn" id="descargarResiduos" type="button">Descargar CSV</button></div>
+        <div class="tabla-scroll"><table id="tablaResiduos"></table></div>
+      </div>
+    </div>
+  </section>
+
+  <section role="tabpanel" id="comparacion">
+    <h2>Comparación analítico / código propio / bibliotecas (§9)</h2>
+    <div class="tarjeta">
+      <div class="barra"><button class="btn" id="descargarComparacion" type="button">Descargar CSV</button></div>
+      <div class="tabla-scroll"><table id="tablaComparacion"></table></div>
+      <p class="nota" id="notaComparacion"></p>
+    </div>
+  </section>
+
+  <section role="tabpanel" id="adicional">
+    <h2>Análisis adicional (§13)</h2>
+    <div class="duo">
+      <div class="tarjeta">
+        <h3>A · Sensibilidad: y<sub>i</sub> + δ, un punto a la vez</h3>
+        <div class="controles"><label for="delta">δ</label><input type="range" id="delta" min="0.1" max="5" step="0.1" value="1"><span id="deltaTxt"></span></div>
+        <div id="gSensibilidad" class="graf bajo"></div>
+        <p class="nota" id="notaSens"></p>
+      </div>
+      <div class="tarjeta">
+        <h3>B · Influencia de cada dato (se elimina y se reajusta)</h3>
+        <div id="gInfluencia" class="graf bajo"></div>
+        <p class="nota" id="notaInfl"></p>
+      </div>
+      <div class="tarjeta">
+        <h3>C · Lineal vs cuadrático</h3>
+        <div id="gCuadratico" class="graf bajo"></div>
+        <div id="tablaCuad"></div>
+      </div>
+      <div class="tarjeta">
+        <h3>D · Efecto del número de datos (200 subconjuntos por m)</h3>
+        <div id="gEfectoN" class="graf bajo"></div>
+        <p class="nota" id="notaEfectoN"></p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script id="datos-app" type="application/json">/*DATOS*/</script>
+<script>/*PLOTLY*/</script>
+<script>/*REGRESION*/</script>
+<script>/*APP*/</script>
+</body>
+</html>

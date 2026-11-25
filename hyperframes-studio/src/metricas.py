@@ -21,19 +21,25 @@ Análisis de la pendiente (según las conclusiones del documento):
   a* ≈ 0        → relación lineal débil o inexistente.
 """
 
+import warnings
+
 import numpy as np
 
 from modelo import prediccion, residuos
 
 
 def r_cuadrado(y: np.ndarray, y_hat: np.ndarray) -> float:
-    """Coeficiente de determinación R² ∈ [0, 1]. Cerca de 1 = buen ajuste."""
+    """Coeficiente de determinación R² ∈ [0, 1]. Cerca de 1 = buen ajuste.
+
+    Si todos los y son iguales (SS_tot = 0), R² no está definido: devuelve nan.
+    """
     y = np.asarray(y, dtype=float)
     y_hat = np.asarray(y_hat, dtype=float)
     ss_res = np.sum((y - y_hat) ** 2)
     ss_tot = np.sum((y - np.mean(y)) ** 2)
     if ss_tot == 0:
-        return 1.0    # todos los y son iguales: la recta horizontal ajusta perfecto
+        warnings.warn("R² no está definido: todos los valores de y son iguales (SS_tot = 0).")
+        return float("nan")
     return float(1.0 - ss_res / ss_tot)
 
 

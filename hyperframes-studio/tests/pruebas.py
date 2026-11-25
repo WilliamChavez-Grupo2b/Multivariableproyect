@@ -89,10 +89,18 @@ def t_carga_valida():
 
 def t_validacion_detecta_x_iguales():
     try:
-        validar_datos(np.array([1.0, 1.0]), np.array([1.0, 2.0, 3.0]))
+        # mismas longitudes y n = 3: el único defecto es que x es constante
+        validar_datos(np.array([1.0, 1.0, 1.0]), np.array([1.0, 2.0, 3.0]))
         assert False, "Debía rechazar x constantes"
-    except ValueError:
-        pass
+    except ValueError as ex:
+        assert "iguales" in str(ex), f"Rechazó por otro motivo: {ex}"
+
+def t_validacion_n_minimo():
+    try:
+        validar_datos(np.array([1.0, 2.0]), np.array([1.0, 3.0]))
+        assert False, "Debía rechazar n = 2"
+    except ValueError as ex:
+        assert "3 observaciones" in str(ex)
 
 # ── 3. Función de error ──────────────────────────────────────────────────────
 def t_error_cero_en_datos_perfectos():
@@ -194,14 +202,25 @@ def t_clasificacion_pendiente():
 
 # ── 10. Exportación HyperFrames ──────────────────────────────────────────────
 def t_export_hyperframes():
-    js_path = os.path.join(RAIZ, "data", "generated", "datos.js")
-    json_path = os.path.join(RAIZ, "data", "generated", "datos.json")
-    assert os.path.exists(js_path) and os.path.exists(json_path), "Ejecuta primero src/main.py"
-    contenido = open(js_path, encoding="utf-8").read()
+    # Genera la exportación en una carpeta temporal: no depende de haber
+    # ejecutado main.py antes ni modifica data/generated/.
+    import main
+    from metricas import imprimir_metricas
+    x, y = obtener_datos()
+    r = reporte_analitico(x, y)
+    a, b = r["a_star"], r["b_star"]
+    g = descenso_gradiente(x, y, centrar=True, max_iter=20_000)
+    original = main.CARPETA_HYPERFRAMES
+    with tempfile.TemporaryDirectory() as tmp:
+        main.CARPETA_HYPERFRAMES = tmp
+        try:
+            main.exportar_hyperframes(x, y, r, verificar_minimo(x), g,
+                                      imprimir_metricas(x, y, a, b))
+        finally:
+            main.CARPETA_HYPERFRAMES = original
+        contenido = open(os.path.join(tmp, "datos.js"), encoding="utf-8").read()
     assert contenido.startswith("window.HYPEFRAMES_DATA")
     datos_js = json.loads(contenido.replace("window.HYPEFRAMES_DATA = ", "").rstrip(";\n"))
-    x, y = obtener_datos()
-    a, b = resolver_analitico(x, y)
     assert datos_js["total"] == len(x)
     assert abs(datos_js["pendiente"] - a) < 1e-9
     assert len(datos_js["datos"]) == len(x)
@@ -233,6 +252,44 @@ def t_cuadratico_propio():
     cq = analisis.comparar_cuadratico(x, y)
     assert cq["S_cuad"] <= cq["S_lineal"]
 
+# ── 12. Robustez (F1) ────────────────────────────────────────────────────────
+def t_residuos_independientes_del_orden():
+    x, y = obtener_datos()
+    a, b = resolver_analitico(x, y)
+    p = np.random.default_rng(1).permutation(len(x))
+    r1 = analisis.analizar_residuos(x, y, a, b)
+    r2 = analisis.analizar_residuos(x[p], y[p], a, b)
+    assert r1["rachas"] == r2["rachas"] == 3, (r1["rachas"], r2["rachas"])
+    assert r1["regiones"] == r2["regiones"] and r1["disp_1"] == r2["disp_1"]
+
+def t_r2_indefinido():
+    import warnings
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        assert np.isnan(r_cuadrado(np.array([2.0, 2.0, 2.0]), np.array([2.0, 2.0, 2.0])))
+
+def t_lstsq_en_bibliotecas():
+    x, y = obtener_datos()
+    a, b = resolver_analitico(x, y)
+    a_ls, b_ls, _ = analisis.comparar_metodos(x, y)["bibliotecas"]["lstsq"]
+    assert abs(a_ls - a) < 1e-9 and abs(b_ls - b) < 1e-6
+
+def t_cuadratico_rechaza_n_pequeno():
+    try:
+        analisis.comparar_cuadratico(np.array([1.0, 2.0, 3.0]), np.array([1.0, 4.0, 9.0]))
+        assert False, "Debía rechazar n = 3"
+    except ValueError:
+        pass
+
+def t_efecto_n():
+    x, y = obtener_datos()
+    a, b = resolver_analitico(x, y)
+    filas = analisis.efecto_n(x, y, repeticiones=50)["filas"]
+    assert [f["m"] for f in filas] == list(range(3, len(x) + 1))
+    # con m = n todos los subconjuntos son el conjunto completo
+    assert abs(filas[-1]["a_media"] - a) < 1e-9 and filas[-1]["a_desv"] < 1e-9
+    assert filas[0]["a_desv"] > filas[-2]["a_desv"], "La dispersión debe bajar al crecer m"
+
 
 if __name__ == "__main__":
     print("\n═══════ PRUEBAS AUTOMÁTICAS ═══════\n")
@@ -257,6 +314,12 @@ if __name__ == "__main__":
     prueba("11b. Hessiano numérico = analítico, def. positivo", t_hessiano_numerico)
     prueba("11c. Newton llega al mínimo en 1 paso", t_newton_un_paso)
     prueba("11d. Ajuste cuadrático propio = polyfit", t_cuadratico_propio)
+    prueba("2c. Validación rechaza n < 3", t_validacion_n_minimo)
+    prueba("12. Residuos no dependen del orden del CSV", t_residuos_independientes_del_orden)
+    prueba("12b. R² = nan si todos los y son iguales", t_r2_indefinido)
+    prueba("12c. numpy.linalg.lstsq = código propio", t_lstsq_en_bibliotecas)
+    prueba("12d. Cuadrático rechaza n < 4", t_cuadratico_rechaza_n_pequeno)
+    prueba("12e. Opción D: efecto del número de datos", t_efecto_n)
 
     ok = sum(1 for _, ok, _ in resultados if ok)
     print(f"\n═══════ RESULTADO: {ok}/{len(resultados)} pruebas pasaron ═══════\n")
